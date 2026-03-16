@@ -9,7 +9,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, sans-serif; background: #f4faf7; display: flex; min-height: 100vh; }
 
-    /* Sidebar */
+    /* ── Sidebar ── */
     .sidebar { width: 240px; background: #1e6e55; color: white; display: flex; flex-direction: column; padding: 1.5rem 0; min-height: 100vh; position: fixed; }
     .sidebar-logo { padding: 0 1.5rem 1.5rem; font-size: 1.3rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); }
     .sidebar nav { flex: 1; padding: 1rem 0; }
@@ -19,62 +19,82 @@
     .btn-uitlog { width: 100%; padding: 0.6rem; background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
     .btn-uitlog:hover { background: rgba(255,255,255,0.25); }
 
-    /* Main */
-    .main { margin-left: 240px; flex: 1; padding: 2rem; }
+    /* ── Main ── */
+    .main { margin-left: 240px; flex: 1; padding: 2rem; max-width: 860px; }
     .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
     .topbar h1 { font-size: 1.5rem; color: #1e6e55; }
     .kind-selector { display: flex; align-items: center; gap: 0.75rem; }
-    select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; outline: none; }
-    .btn { padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
-    .btn-groen { background: #1e6e55; color: white; }
-    .btn-groen:hover { background: #165c45; }
-    .btn-wit { background: white; color: #1e6e55; border: 1px solid #1e6e55; }
-    .btn-rood { background: #dc3545; color: white; }
-    .btn-rood:hover { background: #b02a37; }
+    select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; outline: none; background: white; }
 
-    /* Lege staat */
-    .leeg { background: white; border-radius: 12px; padding: 3rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; }
-    .leeg h2 { color: #1e6e55; margin-bottom: 0.5rem; }
-    .leeg p { color: #888; margin-bottom: 1.5rem; }
+    /* ── Schrijfkaart ── */
+    .schrijfkaart { background: white; border-radius: 16px; padding: 1.75rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 2rem; }
 
-    /* Entries grid */
-    .entries { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
-    .entry-kaart { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer; transition: box-shadow 0.2s; border-left: 4px solid #1e6e55; }
-    .entry-kaart:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
-    .entry-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
-    .entry-titel { font-size: 1rem; font-weight: 600; color: #1e6e55; flex: 1; }
-    .entry-stemming { font-size: 1.4rem; margin-left: 0.5rem; }
-    .entry-datum { font-size: 0.8rem; color: #aaa; margin-bottom: 0.75rem; }
-    .entry-inhoud { font-size: 0.9rem; color: #555; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    /* Periode-selector */
+    .periode-rij { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .periode-btn { padding: 0.45rem 1rem; border: 1.5px solid #ddd; border-radius: 20px; background: white; color: #555; font-size: 0.88rem; cursor: pointer; transition: all 0.15s; }
+    .periode-btn:hover { border-color: #1e6e55; color: #1e6e55; }
+    .periode-btn.actief { background: #1e6e55; color: white; border-color: #1e6e55; }
 
-    /* Modal */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; justify-content: center; align-items: center; padding: 1rem; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: white; border-radius: 16px; padding: 2rem; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
-    .modal h2 { color: #1e6e55; margin-bottom: 1.5rem; }
-    label { display: block; font-size: 0.85rem; color: #444; margin-bottom: 0.3rem; margin-top: 1rem; }
-    input[type="text"], input[type="date"], textarea { width: 100%; padding: 0.7rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; font-family: inherit; }
-    input:focus, textarea:focus { border-color: #1e6e55; }
-    textarea { resize: vertical; min-height: 140px; }
-    .modal-btns { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    /* Datumrij */
+    .datum-rij { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    input[type="date"] { padding: 0.55rem 0.9rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; outline: none; }
+    input[type="date"]:focus { border-color: #1e6e55; }
+    .leeftijd-badge { font-size: 0.82rem; color: #1e6e55; background: #e8f5f0; padding: 0.3rem 0.75rem; border-radius: 20px; }
 
-    /* Stemming picker */
-    .stemming-keuze { display: flex; gap: 0.5rem; margin-top: 0.3rem; flex-wrap: wrap; }
-    .stemming-keuze button { font-size: 1.5rem; background: none; border: 2px solid transparent; border-radius: 8px; padding: 0.3rem 0.5rem; cursor: pointer; transition: border-color 0.15s; }
-    .stemming-keuze button:hover { border-color: #aaa; }
-    .stemming-keuze button.actief { border-color: #1e6e55; background: #f4faf7; }
+    /* Prompt */
+    .prompt-rij { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .prompt-tekst { font-size: 0.9rem; color: #888; font-style: italic; flex: 1; line-height: 1.5; }
+    .btn-nieuwe-prompt { background: none; border: none; color: #aaa; font-size: 1rem; cursor: pointer; padding: 0; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+    .btn-nieuwe-prompt:hover { color: #1e6e55; }
 
-    /* Detail modal */
-    .detail-body { line-height: 1.7; color: #333; white-space: pre-wrap; margin-top: 0.75rem; }
-    .detail-meta { color: #888; font-size: 0.85rem; margin-bottom: 0.5rem; }
-    .detail-acties { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    /* Tekstvak */
+    textarea { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; font-family: inherit; line-height: 1.6; resize: vertical; min-height: 160px; outline: none; color: #222; }
+    textarea:focus { border-color: #1e6e55; }
 
-    /* Laadindicator */
-    .laden { text-align: center; padding: 3rem; color: #888; }
+    /* Sfeer */
+    .sfeer-rij { display: flex; gap: 0.5rem; margin-top: 1.1rem; flex-wrap: wrap; align-items: center; }
+    .sfeer-label { font-size: 0.82rem; color: #aaa; margin-right: 0.25rem; }
+    .sfeer-btn { padding: 0.4rem 0.9rem; border: 1.5px solid #ddd; border-radius: 20px; background: white; font-size: 0.85rem; cursor: pointer; color: #555; transition: all 0.15s; }
+    .sfeer-btn:hover { border-color: #1e6e55; }
+    .sfeer-btn.actief { background: #f0faf6; border-color: #1e6e55; color: #1e6e55; font-weight: 500; }
+
+    /* Onderkant */
+    .kaart-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
+    .btn-opslaan { padding: 0.65rem 1.75rem; background: #1e6e55; color: white; border: none; border-radius: 10px; font-size: 0.95rem; cursor: pointer; font-weight: 500; }
+    .btn-opslaan:hover { background: #165c45; }
+    .melding { font-size: 0.88rem; padding: 0.5rem 1rem; border-radius: 8px; display: none; }
+    .melding.ok { background: #e8f5f0; color: #1e6e55; display: block; }
+    .melding.fout { background: #fdecea; color: #c0392b; display: block; }
+
+    /* ── Leegscherm ── */
+    .leeg-scherm { background: white; border-radius: 16px; padding: 3rem 2rem; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .leeg-scherm .leeg-icoon { font-size: 3rem; margin-bottom: 1rem; }
+    .leeg-scherm h2 { color: #1e6e55; font-size: 1.2rem; margin-bottom: 0.6rem; }
+    .leeg-scherm p { color: #888; font-size: 0.92rem; line-height: 1.6; max-width: 380px; margin: 0 auto; }
+
+    /* ── Tijdlijn ── */
+    .tijdlijn-titel { font-size: 1rem; font-weight: 600; color: #1e6e55; margin-bottom: 1.25rem; }
+    .tijdlijn { position: relative; padding-left: 1.5rem; }
+    .tijdlijn::before { content: ''; position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: #d4ede4; }
+    .tl-item { position: relative; margin-bottom: 1.25rem; }
+    .tl-dot { position: absolute; left: -1.5rem; top: 1rem; width: 14px; height: 14px; background: #1e6e55; border: 3px solid #f4faf7; border-radius: 50%; z-index: 1; }
+    .tl-kaart { background: white; border-radius: 12px; padding: 1.1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer; transition: box-shadow 0.15s; border-left: 3px solid #1e6e55; }
+    .tl-kaart:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .tl-kaart.open { border-left-color: #2d9c72; }
+    .tl-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; gap: 0.5rem; flex-wrap: wrap; }
+    .tl-meta { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+    .tl-periode { font-size: 0.78rem; background: #e8f5f0; color: #1e6e55; padding: 0.2rem 0.6rem; border-radius: 10px; font-weight: 500; }
+    .tl-leeftijd { font-size: 0.78rem; background: #f0f0f0; color: #666; padding: 0.2rem 0.6rem; border-radius: 10px; }
+    .tl-sfeer { font-size: 0.78rem; background: #fffbe6; color: #7a6300; padding: 0.2rem 0.6rem; border-radius: 10px; }
+    .tl-datum { font-size: 0.78rem; color: #bbb; white-space: nowrap; }
+    .tl-preview { font-size: 0.9rem; color: #555; line-height: 1.55; }
+    .tl-volledig { font-size: 0.9rem; color: #333; line-height: 1.7; }
+    .tl-laden { text-align: center; padding: 2rem; color: #aaa; font-size: 0.9rem; }
   </style>
 </head>
 <body>
 
+<!-- Sidebar -->
 <div class="sidebar">
   <div class="sidebar-logo">🌱 Groeiboek</div>
   <nav>
@@ -89,70 +109,68 @@
   </div>
 </div>
 
+<!-- Main -->
 <div class="main">
   <div class="topbar">
     <h1>📖 Dagboek</h1>
     <div class="kind-selector">
-      <select id="kind-select" onchange="kindWisselen()">
-        <option>Laden...</option>
-      </select>
-      <button class="btn btn-groen" onclick="openNieuwModal()">+ Bericht</button>
+      <select id="kind-select" onchange="kindWisselen()"></select>
     </div>
   </div>
 
-  <div id="laden" class="laden">Laden...</div>
-  <div id="leeg" class="leeg" style="display:none">
-    <h2>Nog geen dagboekstukjes 📝</h2>
-    <p>Schrijf het eerste bericht voor dit kindje.</p>
-    <button class="btn btn-groen" onclick="openNieuwModal()">+ Eerste bericht schrijven</button>
-  </div>
-  <div id="entries" class="entries" style="display:none"></div>
-</div>
+  <!-- Schrijfkaart -->
+  <div class="schrijfkaart">
 
-<!-- Nieuw/bewerk modal -->
-<div class="modal-overlay" id="modal-bewerk">
-  <div class="modal">
-    <h2 id="modal-titel">Nieuw dagboekbericht</h2>
-    <label>Titel</label>
-    <input type="text" id="inp-titel" placeholder="Bijv. Eerste stap gezet!">
-    <label>Datum</label>
-    <input type="date" id="inp-datum">
-    <label>Stemming</label>
-    <div class="stemming-keuze" id="stemming-keuze">
-      <button onclick="kiesStemming('😊')">😊</button>
-      <button onclick="kiesStemming('😍')">😍</button>
-      <button onclick="kiesStemming('🥰')">🥰</button>
-      <button onclick="kiesStemming('😄')">😄</button>
-      <button onclick="kiesStemming('😢')">😢</button>
-      <button onclick="kiesStemming('😴')">😴</button>
-      <button onclick="kiesStemming('🤒')">🤒</button>
-      <button onclick="kiesStemming('🎉')">🎉</button>
-      <button onclick="kiesStemming('⭐')">⭐</button>
-      <button onclick="kiesStemming('🌟')">🌟</button>
+    <!-- Periode -->
+    <div class="periode-rij">
+      <button class="periode-btn actief" data-periode="dag"      onclick="kiesPeriode(this)">☀️ Dag</button>
+      <button class="periode-btn"        data-periode="week"     onclick="kiesPeriode(this)">📅 Week</button>
+      <button class="periode-btn"        data-periode="maand"    onclick="kiesPeriode(this)">🌙 Maand</button>
+      <button class="periode-btn"        data-periode="kwartaal" onclick="kiesPeriode(this)">🌱 Kwartaal</button>
     </div>
-    <label>Bericht</label>
+
+    <!-- Datum + leeftijd -->
+    <div class="datum-rij">
+      <input type="date" id="inp-datum" onchange="updateLeeftijdLabel()">
+      <span class="leeftijd-badge" id="leeftijd-label"></span>
+    </div>
+
+    <!-- Schrijfprompt -->
+    <div class="prompt-rij">
+      <span class="prompt-tekst" id="schrijfprompt"></span>
+      <button class="btn-nieuwe-prompt" onclick="nieuwePrompt()" title="Andere vraag">↻</button>
+    </div>
+
+    <!-- Tekstvak -->
     <textarea id="inp-inhoud" placeholder="Schrijf hier je dagboekbericht..."></textarea>
-    <div class="modal-btns">
-      <button class="btn btn-wit" style="flex:1" onclick="sluitBewerkModal()">Annuleren</button>
-      <button class="btn btn-groen" style="flex:1" onclick="opslaan()">Opslaan</button>
+
+    <!-- Sfeer -->
+    <div class="sfeer-rij">
+      <span class="sfeer-label">Sfeer:</span>
+      <button class="sfeer-btn" onclick="kiesSfeer('😊 Blij', this)">😊 Blij</button>
+      <button class="sfeer-btn" onclick="kiesSfeer('✨ Bijzonder', this)">✨ Bijzonder</button>
+      <button class="sfeer-btn" onclick="kiesSfeer('😓 Moeilijk', this)">😓 Moeilijk</button>
+      <button class="sfeer-btn" onclick="kiesSfeer('☀️ Gewoon goed', this)">☀️ Gewoon goed</button>
+    </div>
+
+    <!-- Opslaan -->
+    <div class="kaart-bottom">
+      <div id="melding" class="melding"></div>
+      <button class="btn-opslaan" onclick="opslaan()">Opslaan</button>
     </div>
   </div>
-</div>
 
-<!-- Detail modal -->
-<div class="modal-overlay" id="modal-detail">
-  <div class="modal">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h2 id="detail-titel" style="flex:1;"></h2>
-      <span id="detail-stemming" style="font-size:1.8rem; margin-left:0.5rem;"></span>
-    </div>
-    <div id="detail-meta" class="detail-meta"></div>
-    <div id="detail-body" class="detail-body"></div>
-    <div class="detail-acties">
-      <button class="btn btn-wit" onclick="sluitDetailModal()">Sluiten</button>
-      <button class="btn btn-groen" onclick="bewerkHuidige()">Bewerken</button>
-      <button class="btn btn-rood" onclick="verwijderHuidige()">Verwijderen</button>
-    </div>
+  <!-- Leegscherm -->
+  <div id="leeg" class="leeg-scherm" style="display:none">
+    <div class="leeg-icoon">📝</div>
+    <h2>Nog geen herinneringen bewaard</h2>
+    <p>Schrijf je eerste dagboekstukje hierboven. Elk klein momentje is het bewaren waard — ook de gewone dagen.</p>
+  </div>
+
+  <!-- Tijdlijn -->
+  <div id="tijdlijn-sectie" style="display:none">
+    <div class="tijdlijn-titel">Alle stukjes</div>
+    <div class="tijdlijn" id="tijdlijn"></div>
   </div>
 </div>
 
@@ -163,196 +181,14 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlydm1rbXh5cXZrd3pra3huemtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MDA5MTksImV4cCI6MjA4OTE3NjkxOX0.Qg1lAqs7H0zFq4needCHCFAtzNCduG1mQLOX3nw1Hvk'
   );
 
-  let actieveKindId = null;
-  let gekozenStemming = '';
-  let bewerkId = null;
-  let huidigeEntry = null;
-
-  async function init() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) return window.location.href = 'inlog.html';
-    await laadKinderen();
-  }
-
-  async function laadKinderen() {
-    const { data: kinderen } = await sb.from('kinderen').select('*').order('created_at');
-    const sel = document.getElementById('kind-select');
-    sel.innerHTML = '';
-    if (!kinderen || kinderen.length === 0) {
-      sel.innerHTML = '<option>Geen kinderen</option>';
-      toonLeeg();
-      return;
-    }
-    kinderen.forEach(k => {
-      const opt = document.createElement('option');
-      opt.value = k.id;
-      opt.textContent = k.naam;
-      sel.appendChild(opt);
-    });
-    actieveKindId = kinderen[0].id;
-    await laadEntries();
-  }
-
-  async function kindWisselen() {
-    actieveKindId = document.getElementById('kind-select').value;
-    await laadEntries();
-  }
-
-  async function laadEntries() {
-    document.getElementById('laden').style.display = 'block';
-    document.getElementById('leeg').style.display = 'none';
-    document.getElementById('entries').style.display = 'none';
-
-    const { data: entries, error } = await sb
-      .from('dagboek')
-      .select('*')
-      .eq('kind_id', actieveKindId)
-      .order('datum', { ascending: false });
-
-    document.getElementById('laden').style.display = 'none';
-
-    if (error) { alert('Fout bij laden: ' + error.message); return; }
-    if (!entries || entries.length === 0) { toonLeeg(); return; }
-
-    toonEntries(entries);
-  }
-
-  function toonLeeg() {
-    document.getElementById('leeg').style.display = 'block';
-    document.getElementById('entries').style.display = 'none';
-  }
-
-  function toonEntries(entries) {
-    const container = document.getElementById('entries');
-    container.innerHTML = '';
-    entries.forEach(e => {
-      const kaart = document.createElement('div');
-      kaart.className = 'entry-kaart';
-      kaart.onclick = () => openDetail(e);
-      kaart.innerHTML = `
-        <div class="entry-header">
-          <div class="entry-titel">${escHtml(e.titel || 'Zonder titel')}</div>
-          <div class="entry-stemming">${e.stemming || ''}</div>
-        </div>
-        <div class="entry-datum">${formatDatum(e.datum)}</div>
-        <div class="entry-inhoud">${escHtml(e.inhoud || '')}</div>
-      `;
-      container.appendChild(kaart);
-    });
-    container.style.display = 'grid';
-  }
-
-  function openDetail(entry) {
-    huidigeEntry = entry;
-    document.getElementById('detail-titel').textContent = entry.titel || 'Zonder titel';
-    document.getElementById('detail-stemming').textContent = entry.stemming || '';
-    document.getElementById('detail-meta').textContent = formatDatum(entry.datum);
-    document.getElementById('detail-body').textContent = entry.inhoud || '';
-    document.getElementById('modal-detail').classList.add('open');
-  }
-
-  function sluitDetailModal() {
-    document.getElementById('modal-detail').classList.remove('open');
-    huidigeEntry = null;
-  }
-
-  function bewerkHuidige() {
-    if (!huidigeEntry) return;
-    sluitDetailModal();
-    openBewerkModal(huidigeEntry);
-  }
-
-  async function verwijderHuidige() {
-    if (!huidigeEntry) return;
-    if (!confirm('Weet je zeker dat je dit bericht wilt verwijderen?')) return;
-    const { error } = await sb.from('dagboek').delete().eq('id', huidigeEntry.id);
-    if (error) return alert('Fout: ' + error.message);
-    sluitDetailModal();
-    await laadEntries();
-  }
-
-  function openNieuwModal() {
-    bewerkId = null;
-    document.getElementById('modal-titel').textContent = 'Nieuw dagboekbericht';
-    document.getElementById('inp-titel').value = '';
-    document.getElementById('inp-datum').value = vandaag();
-    document.getElementById('inp-inhoud').value = '';
-    gekozenStemming = '';
-    updateStemmingUI();
-    document.getElementById('modal-bewerk').classList.add('open');
-  }
-
-  function openBewerkModal(entry) {
-    bewerkId = entry.id;
-    document.getElementById('modal-titel').textContent = 'Bericht bewerken';
-    document.getElementById('inp-titel').value = entry.titel || '';
-    document.getElementById('inp-datum').value = entry.datum || vandaag();
-    document.getElementById('inp-inhoud').value = entry.inhoud || '';
-    gekozenStemming = entry.stemming || '';
-    updateStemmingUI();
-    document.getElementById('modal-bewerk').classList.add('open');
-  }
-
-  function sluitBewerkModal() {
-    document.getElementById('modal-bewerk').classList.remove('open');
-    bewerkId = null;
-  }
-
-  function kiesStemming(emoji) {
-    gekozenStemming = gekozenStemming === emoji ? '' : emoji;
-    updateStemmingUI();
-  }
-
-  function updateStemmingUI() {
-    document.querySelectorAll('#stemming-keuze button').forEach(btn => {
-      btn.classList.toggle('actief', btn.textContent === gekozenStemming);
-    });
-  }
-
-  async function opslaan() {
-    const titel = document.getElementById('inp-titel').value.trim();
-    const datum = document.getElementById('inp-datum').value;
-    const inhoud = document.getElementById('inp-inhoud').value.trim();
-
-    if (!titel) return alert('Vul een titel in.');
-    if (!datum) return alert('Kies een datum.');
-    if (!inhoud) return alert('Schrijf een bericht.');
-
-    const { data: { user } } = await sb.auth.getUser();
-    const payload = { titel, datum, inhoud, stemming: gekozenStemming, kind_id: actieveKindId, user_id: user.id };
-
-    let error;
-    if (bewerkId) {
-      ({ error } = await sb.from('dagboek').update(payload).eq('id', bewerkId));
-    } else {
-      ({ error } = await sb.from('dagboek').insert(payload));
-    }
-
-    if (error) return alert('Fout: ' + error.message);
-    sluitBewerkModal();
-    await laadEntries();
-  }
-
-  async function uitloggen() {
-    await sb.auth.signOut();
-    window.location.href = 'inlog.html';
-  }
-
-  function vandaag() {
-    return new Date().toISOString().split('T')[0];
-  }
-
-  function formatDatum(d) {
-    if (!d) return '';
-    const datum = new Date(d + 'T00:00:00');
-    return datum.toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  }
-
-  function escHtml(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  init();
+  // Zet standaard datum op vandaag
+  document.getElementById('inp-datum').value = new Date().toISOString().split('T')[0];
+</script>
+<script src="js/prompts.js"></script>
+<script src="js/leeftijd.js"></script>
+<script src="js/dagboek.js"></script>
+<script>
+  dagboekInit();
 </script>
 </body>
 </html>
