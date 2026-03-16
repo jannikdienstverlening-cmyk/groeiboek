@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Groeiboek</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Doorsturen op basis van sessie
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://irvmkmxyqvkwzkkxnzkj.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlydm1rbXh5cXZrd3pra3huemtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MDA5MTksImV4cCI6MjA4OTE3NjkxOX0.Qg1lAqs7H0zFq4needCHCFAtzNCduG1mQLOX3nw1Hvk'
+    );
+    sb.auth.getSession().then(({ data: { session } }) => {
+      window.location.href = session ? 'dashboard.html' : 'inlog.html';
+    });
+  </script>
+</head>
+<body></body>
+</html>
