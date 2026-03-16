@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Groeiboek — Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f4faf7; display: flex; min-height: 100vh; }
+    .sidebar { width: 240px; background: #1e6e55; color: white; display: flex; flex-direction: column; padding: 1.5rem 0; min-height: 100vh; position: fixed; }
+    .sidebar-logo { padding: 0 1.5rem 1.5rem; font-size: 1.3rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); }
+    .sidebar nav { flex: 1; padding: 1rem 0; }
+    .sidebar nav a { display: block; padding: 0.75rem 1.5rem; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.95rem; }
+    .sidebar nav a:hover, .sidebar nav a.actief { background: rgba(255,255,255,0.15); color: white; }
+    .sidebar-bottom { padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.15); }
+    .btn-uitlog { width: 100%; padding: 0.6rem; background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+    .btn-uitlog:hover { background: rgba(255,255,255,0.25); }
+    .main { margin-left: 240px; flex: 1; padding: 2rem; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .topbar h1 { font-size: 1.5rem; color: #1e6e55; }
+    .kind-selector { display: flex; align-items: center; gap: 0.75rem; }
+    select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; outline: none; }
+    .btn { padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+    .btn-groen { background: #1e6e55; color: white; }
+    .btn-groen:hover { background: #165c45; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-kaart { background: white; border-radius: 12px; padding: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .stat-kaart .getal { font-size: 2rem; font-weight: bold; color: #1e6e55; }
+    .stat-kaart .label { font-size: 0.85rem; color: #888; margin-top: 0.2rem; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; justify-content: center; align-items: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; border-radius: 16px; padding: 2rem; width: 100%; max-width: 400px; }
+    .modal h2 { color: #1e6e55; margin-bottom: 1.5rem; }
+    label { display: block; font-size: 0.85rem; color: #444; margin-bottom: 0.3rem; margin-top: 1rem; }
+    input, select.form-select { width: 100%; padding: 0.7rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; }
+    input:focus { border-color: #1e6e55; }
+    .modal-btns { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    .btn-wit { background: white; color: #1e6e55; border: 1px solid #1e6e55; }
+    .welkom { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; }
+    .welkom h2 { color: #1e6e55; margin-bottom: 0.5rem; }
+    .welkom p { color: #888; margin-bottom: 1.5rem; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">🌱 Groeiboek</div>
+  <nav>
+    <a href="dashboard.html" class="actief">📊 Dashboard</a>
+    <a href="dagboek.html">📖 Dagboek</a>
+    <a href="dashboard.html#groei">📏 Groeicurve</a>
+    <a href="dashboard.html#mijlpalen">⭐ Mijlpalen</a>
+    <a href="dashboard.html#woordjes">🗣️ Woordjes</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="btn-uitlog" onclick="uitloggen()">↩ Uitloggen</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <h1>Dashboard</h1>
+    <div class="kind-selector">
+      <select id="kind-select" onchange="kindWisselen()">
+        <option>Laden...</option>
+      </select>
+      <button class="btn btn-groen" onclick="openModal()">+ Kind</button>
+    </div>
+  </div>
+
+  <div id="geen-kind" class="welkom" style="display:none">
+    <h2>Welkom bij Groeiboek! 🌱</h2>
+    <p>Voeg je eerste kind toe om te beginnen.</p>
+    <button class="btn btn-groen" onclick="openModal()">+ Kind toevoegen</button>
+  </div>
+
+  <div id="dashboard-inhoud">
+    <div class="stats">
+      <div class="stat-kaart">
+        <div class="getal" id="stat-mijlpalen">—</div>
+        <div class="label">⭐ Mijlpalen bereikt</div>
+      </div>
+      <div class="stat-kaart">
+        <div class="getal" id="stat-woordjes">—</div>
+        <div class="label">🗣️ Eerste woordjes</div>
+      </div>
+      <div class="stat-kaart">
+        <div class="getal" id="stat-dagboek">—</div>
+        <div class="label">📖 Dagboekstukjes</div>
+      </div>
+      <div class="stat-kaart">
+        <div class="getal" id="stat-leeftijd">—</div>
+        <div class="label">🎂 Leeftijd</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>Kind toevoegen</h2>
+    <label>Naam</label>
+    <input type="text" id="kind-naam" placeholder="Naam van je kind">
+    <label>Geboortedatum</label>
+    <input type="date" id="kind-datum">
+    <label>Geslacht</label>
+    <select class="form-select" id="kind-geslacht">
+      <option value="">Kies...</option>
+      <option value="meisje">Meisje</option>
+      <option value="jongen">Jongen</option>
+      <option value="anders">Anders</option>
+    </select>
+    <div class="modal-btns">
+      <button class="btn btn-wit" style="flex:1" onclick="sluitModal()">Annuleren</button>
+      <button class="btn btn-groen" style="flex:1" onclick="kindOpslaan()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://irvmkmxyqvkwzkkxnzkj.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlydm1rbXh5cXZrd3pra3huemtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MDA5MTksImV4cCI6MjA4OTE3NjkxOX0.Qg1lAqs7H0zFq4needCHCFAtzNCduG1mQLOX3nw1Hvk'
+  );
+
+  let actieveKindId = null;
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return window.location.href = 'inlog.html';
+    await laadKinderen();
+  }
+
+  async function laadKinderen() {
+    const { data: kinderen } = await sb.from('kinderen').select('*').order('created_at');
+    const sel = document.getElementById('kind-select');
+    sel.innerHTML = '';
+    if (!kinderen || kinderen.length === 0) {
+      document.getElementById('geen-kind').style.display = 'block';
+      document.getElementById('dashboard-inhoud').style.display = 'none';
+      sel.innerHTML = '<option>Geen kinderen</option>';
+      return;
+    }
+    document.getElementById('geen-kind').style.display = 'none';
+    document.getElementById('dashboard-inhoud').style.display = 'block';
+    kinderen.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k.id;
+      opt.textContent = k.naam;
+      sel.appendChild(opt);
+    });
+    actieveKindId = kinderen[0].id;
+    laadStats(kinderen[0]);
+  }
+
+  async function kindWisselen() {
+    const sel = document.getElementById('kind-select');
+    actieveKindId = sel.value;
+    const { data: kind } = await sb.from('kinderen').select('*').eq('id', actieveKindId).single();
+    laadStats(kind);
+  }
+
+  async function laadStats(kind) {
+    const { count: m } = await sb.from('mijlpalen').select('*', { count: 'exact', head: true }).eq('kind_id', kind.id);
+    const { count: w } = await sb.from('woordjes').select('*', { count: 'exact', head: true }).eq('kind_id', kind.id);
+    const { count: d } = await sb.from('dagboek').select('*', { count: 'exact', head: true }).eq('kind_id', kind.id);
+    document.getElementById('stat-mijlpalen').textContent = m || 0;
+    document.getElementById('stat-woordjes').textContent = w || 0;
+    document.getElementById('stat-dagboek').textContent = d || 0;
+    const geb = new Date(kind.geboortedatum);
+    const nu = new Date();
+    const maanden = (nu.getFullYear() - geb.getFullYear()) * 12 + (nu.getMonth() - geb.getMonth());
+    document.getElementById('stat-leeftijd').textContent = maanden < 24 ? maanden + ' mnd' : Math.floor(maanden/12) + ' jr';
+  }
+
+  function openModal() { document.getElementById('modal').classList.add('open'); }
+  function sluitModal() { document.getElementById('modal').classList.remove('open'); }
+
+  async function kindOpslaan() {
+    const naam = document.getElementById('kind-naam').value;
+    const datum = document.getElementById('kind-datum').value;
+    const geslacht = document.getElementById('kind-geslacht').value;
+    if (!naam || !datum) return alert('Vul naam en geboortedatum in.');
+    const { data: { user } } = await sb.auth.getUser();
+    const { error } = await sb.from('kinderen').insert({ naam, geboortedatum: datum, geslacht, user_id: user.id });
+    if (error) return alert('Fout: ' + error.message);
+    sluitModal();
+    laadKinderen();
+  }
+
+  async function uitloggen() {
+    await sb.auth.signOut();
+    window.location.href = 'inlog.html';
+  }
+
+  init();
+</script>
+</body>
+</html>
