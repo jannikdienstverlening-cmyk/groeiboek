@@ -4,7 +4,7 @@
  * Bucket: 'fotos' (public)
  */
 
-const MAX_BESTAND_MB = 5;
+const MAX_BESTAND_MB = 20;
 
 // ─── Preview ──────────────────────────────────────────────────────────────────
 
@@ -14,7 +14,7 @@ function fotoPreview(input) {
 
   const bestand = input.files[0];
   if (bestand.size > MAX_BESTAND_MB * 1024 * 1024) {
-    fotoFeedback(`Bestand is te groot. Maximum is ${MAX_BESTAND_MB} MB.`, 'fout');
+    fotoFeedback(`Bestand is te groot. Maximum is 20 MB.`, 'fout');
     input.value = '';
     preview.style.display = 'none';
     return;
@@ -37,7 +37,7 @@ async function fotoUploaden() {
 
   if (!bestand) return fotoFeedback('Kies eerst een foto.', 'fout');
   if (bestand.size > MAX_BESTAND_MB * 1024 * 1024) {
-    return fotoFeedback(`Bestand is te groot. Maximum is ${MAX_BESTAND_MB} MB.`, 'fout');
+    return fotoFeedback(`Bestand is te groot. Maximum is 20 MB.`, 'fout');
   }
 
   const { data: { user } } = await sb.auth.getUser();
