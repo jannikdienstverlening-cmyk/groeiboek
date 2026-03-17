@@ -101,6 +101,35 @@
     /* ── Divider ── */
     .sectie-divider { border: none; border-top: 1px solid #eee; margin: 1.5rem 0; }
 
+    /* ── Premium badge ── */
+    .premium-badge { display:inline-flex; align-items:center; gap:0.3rem; background:#f4c542; color:#7a5500; font-size:0.72rem; font-weight:700; padding:0.2rem 0.55rem; border-radius:20px; margin-left:0.5rem; vertical-align:middle; }
+    .sidebar-upgrade { margin:0.5rem 1.5rem 0; }
+    .btn-upgrade { display:block; width:100%; padding:0.55rem; background:linear-gradient(135deg,#f4c542,#f4a83a); color:#7a5500; border:none; border-radius:8px; font-size:0.85rem; font-weight:600; cursor:pointer; text-align:center; }
+    .btn-upgrade:hover { opacity:0.9; }
+
+    /* ── Betaald banner ── */
+    .betaald-banner { display:none; background:#e8f5f0; border:1.5px solid #b2dfc8; color:#1e6e55; padding:0.9rem 1.25rem; border-radius:12px; margin-bottom:1.5rem; font-size:0.95rem; font-weight:500; }
+
+    /* ── Upgrade modal ── */
+    .upgrade-modal { max-width:480px; }
+    .upgrade-modal h2 { text-align:center; }
+    .upgrade-intro { text-align:center; color:#888; font-size:0.92rem; margin-bottom:1.5rem; }
+    .upgrade-plannen { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.25rem; }
+    .upgrade-plan { border:2px solid #eee; border-radius:14px; padding:1.25rem; text-align:center; transition:border-color 0.15s; }
+    .upgrade-plan.aanbevolen { border-color:#1e6e55; background:#f9fdf9; }
+    .upgrade-plan .plan-label { font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#aaa; margin-bottom:0.4rem; }
+    .upgrade-plan.aanbevolen .plan-label { color:#1e6e55; }
+    .upgrade-plan .plan-prijs { font-size:1.9rem; font-weight:800; color:#1e6e55; line-height:1; }
+    .upgrade-plan .plan-per { font-size:0.8rem; color:#aaa; margin-bottom:0.75rem; }
+    .upgrade-plan .plan-korting { font-size:0.78rem; background:#fff3cd; color:#856404; padding:0.2rem 0.5rem; border-radius:10px; margin-bottom:0.75rem; display:inline-block; }
+    .btn-checkout { width:100%; padding:0.65rem; border:none; border-radius:8px; font-size:0.9rem; font-weight:600; cursor:pointer; }
+    .btn-checkout-groen { background:#1e6e55; color:white; }
+    .btn-checkout-groen:hover { background:#165c45; }
+    .btn-checkout-wit { background:white; color:#1e6e55; border:1.5px solid #1e6e55; }
+    .btn-checkout-wit:hover { background:#f4faf7; }
+    .upgrade-voordelen { list-style:none; font-size:0.88rem; color:#555; margin-bottom:1.25rem; display:flex; flex-direction:column; gap:0.4rem; }
+    .upgrade-voordelen li::before { content:'✓ '; color:#1e6e55; font-weight:700; }
+
     /* ── Woordjes ── */
     .woord-form { display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; align-items: end; margin-bottom: 1rem; }
     .woord-form .form-veld { display: flex; flex-direction: column; }
@@ -146,13 +175,16 @@
 <div class="sidebar">
   <div class="sidebar-logo">🌱 Groeiboek</div>
   <nav>
-    <a href="dashboard.html" class="actief">📊 Dashboard</a>
+    <a href="dashboard.html" class="actief">📊 Dashboard <span id="premium-badge" class="premium-badge" style="display:none">★ Premium</span></a>
     <a href="dagboek.html">📖 Dagboek</a>
     <a href="dashboard.html#groei">📏 Groeicurve</a>
     <a href="dashboard.html#mijlpalen">⭐ Mijlpalen</a>
     <a href="dashboard.html#woordjes">🗣️ Woordjes</a>
     <a href="dashboard.html#fotos">📷 Foto's</a>
   </nav>
+  <div id="sidebar-upgrade" class="sidebar-upgrade" style="display:none">
+    <button class="btn-upgrade" onclick="showUpgradeModal()">⭐ Upgrade naar Premium</button>
+  </div>
   <div class="sidebar-bottom">
     <button class="btn-uitlog" onclick="uitloggen()">↩ Uitloggen</button>
   </div>
@@ -166,6 +198,11 @@
       <select id="kind-select" onchange="kindWisselen()"><option>Laden...</option></select>
       <button class="btn btn-groen" onclick="openKindModal()">+ Kind</button>
     </div>
+  </div>
+
+  <!-- Betaald banner -->
+  <div id="betaald-banner" class="betaald-banner">
+    🎉 Welkom bij Premium! Je abonnement is actief. Bedankt voor je steun!
   </div>
 
   <!-- Geen kinderen -->
@@ -366,6 +403,38 @@
   </div>
 </div>
 
+<!-- Modal: upgrade naar Premium -->
+<div class="modal-overlay" id="modal-upgrade">
+  <div class="modal upgrade-modal">
+    <h2>⭐ Word Premium</h2>
+    <p class="upgrade-intro">Onbeperkt herinneringen bewaren voor al je kinderen.</p>
+    <ul class="upgrade-voordelen">
+      <li>Onbeperkt foto's uploaden</li>
+      <li>Volledige groeicurve & mijlpalen</li>
+      <li>Dagboek, woordjes en meer</li>
+      <li>Altijd beschikbaar, ook offline</li>
+    </ul>
+    <div class="upgrade-plannen">
+      <div class="upgrade-plan">
+        <div class="plan-label">Maandelijks</div>
+        <div class="plan-prijs">€2,99</div>
+        <div class="plan-per">per maand</div>
+        <button id="btn-checkout-monthly" class="btn-checkout btn-checkout-wit" onclick="startCheckout('monthly')">Kies maandelijks</button>
+      </div>
+      <div class="upgrade-plan aanbevolen">
+        <div class="plan-label">Jaarlijks ✦</div>
+        <div class="plan-prijs">€24,99</div>
+        <div class="plan-per">per jaar</div>
+        <div class="plan-korting">2 maanden gratis</div>
+        <button id="btn-checkout-yearly" class="btn-checkout btn-checkout-groen" onclick="startCheckout('yearly')">Kies jaarlijks</button>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <button class="btn btn-wit" onclick="sluitUpgradeModal()">Misschien later</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: lightbox foto -->
 <div class="modal-overlay" id="modal-lightbox" onclick="sluitLightbox()">
   <div class="modal" onclick="event.stopPropagation()">
@@ -396,7 +465,7 @@
     const vandaag = new Date().toISOString().split('T')[0];
     document.getElementById('groei-datum').value = vandaag;
     document.getElementById('woord-datum').value = vandaag;
-    await laadKinderen();
+    await Promise.all([laadKinderen(), laadPremiumBadge()]);
   }
 
   // ─── Kinderen ───────────────────────────────────────────────────────────────
@@ -498,5 +567,6 @@
 <script src="js/mijlpalen.js"></script>
 <script src="js/woordjes.js"></script>
 <script src="js/fotos.js"></script>
+<script src="js/abonnement.js"></script>
 </body>
 </html>

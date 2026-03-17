@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "api/checkout.js": { "memory": 256, "maxDuration": 10 },
+    "api/webhook.js":  { "memory": 256, "maxDuration": 10 }
+  },
+  "env": {
+    "STRIPE_SECRET_KEY":        "@stripe_secret_key",
+    "STRIPE_PUBLISHABLE_KEY":   "@stripe_publishable_key",
+    "STRIPE_WEBHOOK_SECRET":    "@stripe_webhook_secret",
+    "SUPABASE_URL":             "@supabase_url",
+    "SUPABASE_SERVICE_ROLE_KEY":"@supabase_service_role_key",
+    "BASE_URL":                 "https://groeiboek.vercel.app"
+  }
+}
