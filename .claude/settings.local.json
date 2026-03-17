@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(cd:*)",
-      "Bash(winget install:*)"
+      "Bash(winget install:*)",
+      "mcp__claude_ai_Supabase__execute_sql"
     ]
   }
 }
