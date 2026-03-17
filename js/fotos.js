@@ -41,6 +41,10 @@ async function fotoUploaden() {
   }
 
   const { data: { user } } = await sb.auth.getUser();
+
+  if (!user) return fotoFeedback('Niet ingelogd.', 'fout');
+  if (!window.fotosKindId) return fotoFeedback('Geen kind geselecteerd.', 'fout');
+
   const ext      = bestand.name.split('.').pop();
   const pad      = `${user.id}/${window.fotosKindId}/${Date.now()}.${ext}`;
 
@@ -55,17 +59,24 @@ async function fotoUploaden() {
   const { data: urlData } = sb.storage.from('fotos').getPublicUrl(pad);
   const publiekUrl = urlData.publicUrl;
 
-  // Opslaan in tabel
-  const { error: dbError } = await sb.from('fotos').insert({
-    kind_id:  window.fotosKindId,
-    user_id:  user.id,
-    url:      publiekUrl,
+  // Debug: toon exacte insert data in console
+  const insertData = {
+    kind_id: window.fotosKindId,
+    user_id: user.id,
+    url:     publiekUrl,
     pad,
-    label:    label || null,
-    datum:    new Date().toISOString().split('T')[0],
-  });
+    label:   label || null,
+    datum:   new Date().toISOString().split('T')[0],
+  };
+  console.log('[fotos] insert data:', insertData);
 
-  if (dbError) return fotoFeedback('Opslaan mislukt: ' + dbError.message, 'fout');
+  // Opslaan in tabel
+  const { error: dbError } = await sb.from('fotos').insert(insertData);
+
+  if (dbError) {
+    console.error('[fotos] insert error:', dbError);
+    return fotoFeedback('Opslaan mislukt: ' + dbError.message, 'fout');
+  }
 
   // Reset
   input.value = '';
