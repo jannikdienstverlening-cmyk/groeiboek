@@ -3,7 +3,8 @@
     "allow": [
       "Bash(cd:*)",
       "Bash(winget install:*)",
-      "mcp__claude_ai_Supabase__execute_sql"
+      "mcp__claude_ai_Supabase__execute_sql",
+      "mcp__claude_ai_Supabase__apply_migration"
     ]
   }
 }
