@@ -6,6 +6,7 @@
   <title>Groeiboek — Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, sans-serif; background: #f4faf7; display: flex; min-height: 100vh; }
@@ -100,6 +101,17 @@
 
     /* ── Divider ── */
     .sectie-divider { border: none; border-top: 1px solid #eee; margin: 1.5rem 0; }
+
+    /* ── Jaarboek balk ── */
+    .jaarboek-balk { background: linear-gradient(135deg, #1e6e55 0%, #2d9c72 100%); border-radius: 14px; padding: 1.1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; box-shadow: 0 4px 16px rgba(30,110,85,0.2); flex-wrap: wrap; }
+    .jaarboek-balk-tekst h3 { color: white; font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .jaarboek-balk-tekst p { color: rgba(255,255,255,0.75); font-size: 0.82rem; }
+    .jaarboek-acties { display: flex; align-items: center; gap: 0.75rem; }
+    .jaarboek-acties select { padding: 0.45rem 0.75rem; border: none; border-radius: 8px; font-size: 0.9rem; outline: none; background: rgba(255,255,255,0.15); color: white; cursor: pointer; }
+    .jaarboek-acties select option { background: #1e6e55; color: white; }
+    .btn-jaarboek { padding: 0.55rem 1.2rem; background: white; color: #1e6e55; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .btn-jaarboek:hover { background: #f0faf6; }
+    .btn-jaarboek:disabled { opacity: 0.6; cursor: not-allowed; }
 
     /* ── Premium badge ── */
     .premium-badge { display:inline-flex; align-items:center; gap:0.3rem; background:#f4c542; color:#7a5500; font-size:0.72rem; font-weight:700; padding:0.2rem 0.55rem; border-radius:20px; margin-left:0.5rem; vertical-align:middle; }
@@ -231,6 +243,18 @@
       <div class="stat-kaart">
         <div class="getal" id="stat-woordjes">—</div>
         <div class="label">🗣️ Eerste woordjes</div>
+      </div>
+    </div>
+
+    <!-- ── Jaarboek ── -->
+    <div class="jaarboek-balk">
+      <div class="jaarboek-balk-tekst">
+        <h3>📄 Jaarboek downloaden</h3>
+        <p>Alle herinneringen van een jaar als mooi PDF-boek</p>
+      </div>
+      <div class="jaarboek-acties">
+        <select id="jaarboek-jaar"></select>
+        <button id="btn-jaarboek" class="btn-jaarboek" onclick="jaarboekGenereren()">📄 Jaarboek downloaden</button>
       </div>
     </div>
 
@@ -465,6 +489,15 @@
     const vandaag = new Date().toISOString().split('T')[0];
     document.getElementById('groei-datum').value = vandaag;
     document.getElementById('woord-datum').value = vandaag;
+
+    // Jaar-selector vullen (huidig jaar + 4 jaar terug)
+    const jaarSel = document.getElementById('jaarboek-jaar');
+    const huidigJaar = new Date().getFullYear();
+    for (let j = huidigJaar; j >= huidigJaar - 4; j--) {
+      const opt = document.createElement('option');
+      opt.value = j; opt.textContent = j;
+      jaarSel.appendChild(opt);
+    }
     await Promise.all([laadKinderen(), laadPremiumBadge()]);
   }
 
@@ -568,5 +601,6 @@
 <script src="js/woordjes.js"></script>
 <script src="js/fotos.js"></script>
 <script src="js/abonnement.js"></script>
+<script src="js/jaarboek.js"></script>
 </body>
 </html>
