@@ -100,6 +100,44 @@
 
     /* ── Divider ── */
     .sectie-divider { border: none; border-top: 1px solid #eee; margin: 1.5rem 0; }
+
+    /* ── Woordjes ── */
+    .woord-form { display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; align-items: end; margin-bottom: 1rem; }
+    .woord-form .form-veld { display: flex; flex-direction: column; }
+    .woord-form label { margin-top: 0; }
+    @media (max-width: 520px) { .woord-form { grid-template-columns: 1fr; } }
+    .zoekbalk { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .zoekbalk input { flex: 1; padding: 0.6rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; outline: none; }
+    .zoekbalk input:focus { border-color: #1e6e55; }
+    .woordjes-lijst { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .woord-chip { display: flex; flex-direction: column; align-items: center; background: #f0faf6; border: 1.5px solid #b2dfc8; border-radius: 12px; padding: 0.5rem 0.9rem; }
+    .woord-tekst { font-size: 1rem; font-weight: 600; color: #1e6e55; }
+    .woord-datum { font-size: 0.72rem; color: #aaa; margin-top: 0.1rem; }
+    .woordjes-leeg { color: #aaa; font-size: 0.9rem; font-style: italic; }
+
+    /* ── Foto upload ── */
+    .foto-upload-gebied { border: 2px dashed #b2dfc8; border-radius: 12px; padding: 1.5rem; text-align: center; background: #f9fdf9; margin-bottom: 1.25rem; }
+    .foto-upload-gebied input[type="file"] { display: none; }
+    .foto-upload-label { cursor: pointer; display: inline-block; padding: 0.6rem 1.25rem; background: #1e6e55; color: white; border-radius: 8px; font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .foto-upload-label:hover { background: #165c45; }
+    #foto-preview { max-width: 100%; max-height: 220px; border-radius: 10px; margin-top: 0.75rem; display: none; object-fit: cover; }
+    .foto-label-rij { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; align-items: end; margin-bottom: 0.75rem; }
+    .foto-label-rij .form-veld { display: flex; flex-direction: column; }
+    .foto-label-rij label { margin-top: 0; }
+
+    /* ── Galerij ── */
+    .foto-galerij { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+    .galerij-item { border-radius: 10px; overflow: hidden; cursor: pointer; position: relative; background: #eee; aspect-ratio: 1; }
+    .galerij-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s; display: block; }
+    .galerij-item:hover img { transform: scale(1.04); }
+    .galerij-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.45); color: white; font-size: 0.75rem; padding: 0.3rem 0.5rem; text-align: center; }
+    .galerij-leeg { color: #aaa; font-size: 0.9rem; font-style: italic; }
+
+    /* ── Lightbox ── */
+    #modal-lightbox .modal { max-width: 680px; text-align: center; }
+    #lightbox-img { max-width: 100%; max-height: 60vh; border-radius: 10px; margin-bottom: 0.75rem; object-fit: contain; }
+    .lightbox-meta { color: #888; font-size: 0.88rem; }
+    .lightbox-naam { font-weight: 600; color: #222; font-size: 1rem; margin-bottom: 0.25rem; }
   </style>
 </head>
 <body>
@@ -113,6 +151,7 @@
     <a href="dashboard.html#groei">📏 Groeicurve</a>
     <a href="dashboard.html#mijlpalen">⭐ Mijlpalen</a>
     <a href="dashboard.html#woordjes">🗣️ Woordjes</a>
+    <a href="dashboard.html#fotos">📷 Foto's</a>
   </nav>
   <div class="sidebar-bottom">
     <button class="btn-uitlog" onclick="uitloggen()">↩ Uitloggen</button>
@@ -223,6 +262,68 @@
       </div>
     </div>
 
+    <!-- ── Woordjes ── -->
+    <div class="sectie" id="woordjes">
+      <div class="sectie-header">
+        <div class="sectie-titel">🗣️ Eerste woordjes</div>
+      </div>
+
+      <!-- Formulier -->
+      <div class="woord-form">
+        <div class="form-veld">
+          <label>Woordje</label>
+          <input type="text" id="woord-inp" placeholder="bijv. mama, hond, nee...">
+        </div>
+        <div class="form-veld">
+          <label>Datum</label>
+          <input type="date" id="woord-datum">
+        </div>
+        <button class="btn btn-groen" style="white-space:nowrap;margin-top:auto" onclick="woordjeOpslaan()">+ Toevoegen</button>
+      </div>
+      <div id="woord-melding" class="sectie-melding"></div>
+
+      <!-- Zoekbalk -->
+      <div class="zoekbalk">
+        <input type="text" id="woord-zoek" placeholder="🔍 Zoek een woordje..." oninput="filterWoordjes()">
+      </div>
+
+      <!-- Lijst -->
+      <div class="woordjes-lijst" id="woordjes-lijst">
+        <p class="woordjes-leeg">Nog geen woordjes — voeg het eerste toe!</p>
+      </div>
+    </div>
+
+    <!-- ── Foto's ── -->
+    <div class="sectie" id="fotos">
+      <div class="sectie-header">
+        <div class="sectie-titel">📷 Foto's</div>
+      </div>
+
+      <!-- Upload -->
+      <div class="foto-upload-gebied">
+        <label class="foto-upload-label" for="foto-input">📁 Kies een foto</label>
+        <input type="file" id="foto-input" accept="image/*" onchange="fotoPreview(this)">
+        <div style="font-size:0.82rem;color:#aaa">JPG, PNG, WebP · max 5 MB</div>
+        <img id="foto-preview" alt="Preview">
+      </div>
+
+      <div class="foto-label-rij">
+        <div class="form-veld">
+          <label>Label (optioneel)</label>
+          <input type="text" id="foto-label" placeholder="bijv. Eerste bad, Verjaardag...">
+        </div>
+        <button class="btn btn-groen" style="white-space:nowrap;margin-top:auto" onclick="fotoUploaden()">Uploaden</button>
+      </div>
+      <div id="foto-melding" class="sectie-melding"></div>
+
+      <hr class="sectie-divider">
+
+      <!-- Galerij -->
+      <div class="foto-galerij" id="foto-galerij">
+        <p class="galerij-leeg">Nog geen foto's — upload de eerste!</p>
+      </div>
+    </div>
+
   </div><!-- /dashboard-inhoud -->
 </div><!-- /main -->
 
@@ -265,6 +366,18 @@
   </div>
 </div>
 
+<!-- Modal: lightbox foto -->
+<div class="modal-overlay" id="modal-lightbox" onclick="sluitLightbox()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <img id="lightbox-img" src="" alt="">
+    <div class="lightbox-naam" id="lightbox-label"></div>
+    <div class="lightbox-meta" id="lightbox-datum"></div>
+    <div style="margin-top:1rem">
+      <button class="btn btn-wit" onclick="sluitLightbox()">Sluiten</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const { createClient } = supabase;
   const sb = createClient(
@@ -279,8 +392,10 @@
   async function init() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return window.location.href = 'inlog.html';
-    // Standaard datum groeiformulier = vandaag
-    document.getElementById('groei-datum').value = new Date().toISOString().split('T')[0];
+    // Standaard datums = vandaag
+    const vandaag = new Date().toISOString().split('T')[0];
+    document.getElementById('groei-datum').value = vandaag;
+    document.getElementById('woord-datum').value = vandaag;
     await laadKinderen();
   }
 
@@ -324,6 +439,8 @@
       laadStats(kind),
       laadGroeicurve(kind.id),
       laadMijlpalen(kind.id),
+      laadWoordjes(kind.id),
+      laadFotos(kind.id),
     ]);
   }
 
@@ -379,5 +496,7 @@
 </script>
 <script src="js/groeicurve.js"></script>
 <script src="js/mijlpalen.js"></script>
+<script src="js/woordjes.js"></script>
+<script src="js/fotos.js"></script>
 </body>
 </html>
