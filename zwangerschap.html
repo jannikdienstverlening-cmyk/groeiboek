@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Groeiboek — Zwangerschap</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Setup kaart ── */
+    .zw-setup-kaart {
+      background: var(--surface);
+      border-radius: var(--radius-l);
+      padding: 2.5rem;
+      box-shadow: var(--schaduw);
+      border: 1px solid var(--rand);
+      max-width: 520px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .zw-setup-icoon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .zw-setup-kaart h2 { font-size: 1.4rem; font-weight: 800; color: var(--tekst); margin-bottom: 0.5rem; letter-spacing: -0.3px; }
+    .zw-setup-kaart p { color: var(--tekst-licht); font-size: 0.93rem; font-weight: 600; margin-bottom: 2rem; line-height: 1.6; }
+    .zw-setup-velden { text-align: left; margin-bottom: 1.5rem; }
+    .zw-setup-velden label { margin-top: 0.75rem; }
+    .zw-setup-hint { font-size: 0.78rem; color: var(--tekst-licht); font-weight: 600; margin-top: 0.3rem; font-style: italic; }
+
+    /* ── Info balk ── */
+    .zw-info-balk {
+      background: linear-gradient(135deg, #FEF0F5 0%, #FEF6F0 100%);
+      border: 1.5px solid var(--groen-mid);
+      border-radius: var(--radius);
+      padding: 1rem 1.5rem;
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      margin-bottom: 1.75rem;
+      flex-wrap: wrap;
+    }
+    .zw-info-item { display: flex; flex-direction: column; gap: 0.15rem; }
+    .zw-info-label { font-size: 0.72rem; font-weight: 800; color: var(--tekst-licht); text-transform: uppercase; letter-spacing: 0.5px; }
+    .zw-info-waarde { font-size: 0.95rem; font-weight: 700; color: var(--groen-donker); }
+    .zw-info-edit { margin-left: auto; }
+
+    /* ── Trimester tabs ── */
+    .trim-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.75rem;
+    }
+    .trim-tab {
+      flex: 1;
+      padding: 0.75rem 0.5rem;
+      border: 1.5px solid var(--rand);
+      border-radius: var(--radius-s);
+      background: var(--surface);
+      color: var(--tekst-mid);
+      font-size: 0.88rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--overgang);
+      text-align: center;
+    }
+    .trim-tab:hover { border-color: var(--groen); color: var(--groen); }
+    .trim-tab.actief {
+      background: linear-gradient(135deg, var(--groen), var(--groen-donker));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 2px 10px rgba(176,98,128,0.28);
+    }
+    .trim-tab .trim-subtitel { display: block; font-size: 0.7rem; font-weight: 600; opacity: 0.75; margin-top: 0.1rem; }
+
+    /* ── Schrijfkaart ── */
+    .zw-schrijfkaart {
+      background: var(--surface);
+      border-radius: var(--radius-l);
+      padding: 1.75rem;
+      box-shadow: var(--schaduw);
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--rand);
+    }
+    .zw-schrijfkaart h3 { font-size: 0.95rem; font-weight: 800; color: var(--tekst); margin-bottom: 1.25rem; letter-spacing: -0.2px; }
+
+    .zw-prompt-rij { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.85rem; }
+    .zw-prompt-tekst { font-size: 0.88rem; color: var(--tekst-licht); font-style: italic; flex: 1; line-height: 1.55; font-weight: 600; }
+    .zw-prompt-btn { background: none; border: none; color: var(--tekst-licht); font-size: 1rem; cursor: pointer; padding: 0; transition: var(--overgang); }
+    .zw-prompt-btn:hover { color: var(--groen); transform: rotate(45deg); }
+
+    textarea { min-height: 140px; }
+
+    .zw-kaart-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
+
+    /* ── Herinneringen lijst ── */
+    .zw-herinn-lijst { display: flex; flex-direction: column; gap: 1rem; }
+    .zw-herinn-kaart {
+      background: var(--surface);
+      border: 1px solid var(--rand);
+      border-left: 3px solid var(--groen);
+      border-radius: var(--radius-s);
+      padding: 1rem 1.25rem;
+      transition: var(--overgang);
+    }
+    .zw-herinn-kaart:hover { box-shadow: var(--schaduw); }
+    .zw-herinn-datum { font-size: 0.78rem; font-weight: 700; color: var(--tekst-licht); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.5rem; }
+    .zw-herinn-tekst { font-size: 0.92rem; color: var(--tekst); line-height: 1.7; font-weight: 500; }
+
+    .zw-leeg-tekst { color: var(--tekst-licht); font-size: 0.9rem; font-style: italic; font-weight: 600; }
+
+    /* ── Foto upload ── */
+    .zw-foto-upload { border: 2px dashed var(--groen-mid); border-radius: var(--radius); padding: 1.25rem; text-align: center; background: var(--groen-licht); margin-bottom: 1rem; transition: var(--overgang); }
+    .zw-foto-upload:hover { border-color: var(--groen); }
+    .zw-foto-upload input[type="file"] { display: none; }
+    .zw-foto-upload-label { cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1.1rem; background: linear-gradient(135deg, var(--groen), var(--groen-donker)); color: white; border-radius: var(--radius-s); font-size: 0.88rem; font-weight: 700; margin-bottom: 0.5rem; transition: var(--overgang); box-shadow: 0 2px 8px rgba(176,98,128,0.28); }
+    .zw-foto-upload-label:hover { transform: translateY(-1px); }
+    .zw-foto-hint { font-size: 0.75rem; color: var(--tekst-licht); font-weight: 600; }
+    #zw-foto-preview { max-width: 100%; max-height: 180px; border-radius: var(--radius-s); margin-top: 0.75rem; display: none; object-fit: cover; }
+
+    .zw-foto-meta { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.75rem; align-items: end; margin-bottom: 0.75rem; }
+    .zw-foto-meta .form-veld { display: flex; flex-direction: column; }
+    .zw-foto-meta label { margin-top: 0; }
+    @media (max-width: 600px) { .zw-foto-meta { grid-template-columns: 1fr; } }
+
+    /* ── Galerij ── */
+    .zw-galerij { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem; }
+    .zw-galerij-item { border-radius: var(--radius-s); overflow: hidden; cursor: pointer; position: relative; background: var(--bg); aspect-ratio: 1; }
+    .zw-galerij-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s; display: block; }
+    .zw-galerij-item:hover img { transform: scale(1.05); }
+    .zw-galerij-badge { position: absolute; top: 0.4rem; left: 0.4rem; background: rgba(255,255,255,0.92); font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 6px; color: var(--groen-donker); }
+    .zw-galerij-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.48); color: white; font-size: 0.7rem; padding: 0.25rem 0.5rem; text-align: center; font-weight: 600; }
+
+    /* ── Mijlpalen ── */
+    .zw-mijl-sectie { background: var(--surface); border-radius: var(--radius-l); padding: 1.75rem; box-shadow: var(--schaduw); border: 1px solid var(--rand); margin-bottom: 2rem; }
+    .zw-mijl-sectie h3 { font-size: 1rem; font-weight: 800; color: var(--tekst); margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1.5px solid var(--rand); }
+
+    .zw-mijl-groep { margin-bottom: 1.5rem; }
+    .zw-mijl-groep-titel { font-size: 0.78rem; font-weight: 800; color: var(--tekst-licht); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; }
+    .zw-mijl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.5rem; }
+
+    .zw-mijl-item { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.85rem; border: 1.5px solid var(--rand); border-radius: 10px; transition: var(--overgang); }
+    .zw-mijl-item.gedaan { background: var(--groen-licht); border-color: var(--groen-mid); }
+    .zw-mijl-label { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; flex: 1; }
+    .zw-mijl-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--groen); cursor: pointer; flex-shrink: 0; }
+    .zw-mijl-naam { font-size: 0.86rem; font-weight: 600; color: var(--tekst); }
+    .zw-mijl-item.gedaan .zw-mijl-naam { color: var(--groen-donker); }
+    .zw-mijl-datum { font-size: 0.72rem; font-weight: 700; color: var(--groen); background: var(--groen-mid); padding: 0.15rem 0.5rem; border-radius: 10px; white-space: nowrap; margin-left: 0.5rem; flex-shrink: 0; }
+  </style>
+</head>
+<body class="met-sidebar">
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <svg class="logo-voet" width="22" height="27" viewBox="0 0 24 30" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="12" cy="21" rx="8.5" ry="9"/>
+      <circle cx="4" cy="9.5" r="3.2"/>
+      <circle cx="9" cy="6.5" r="2.7"/>
+      <circle cx="14.5" cy="6" r="2.3"/>
+      <circle cx="19.5" cy="7.5" r="2"/>
+      <circle cx="23" cy="11" r="1.7"/>
+    </svg>
+    <div>
+      Groeiboek
+      <span class="tagline">Herinneringen bewaren</span>
+    </div>
+  </div>
+  <nav>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="dagboek.html">📖 Dagboek</a>
+    <a href="zwangerschap.html" class="actief">🤰 Zwangerschap</a>
+    <a href="dashboard.html#groei">📏 Groeicurve</a>
+    <a href="dashboard.html#mijlpalen">⭐ Mijlpalen</a>
+    <a href="dashboard.html#woordjes">🗣️ Woordjes</a>
+    <a href="dashboard.html#fotos">📷 Foto's</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="btn-uitlog" onclick="uitloggen()">↩ Uitloggen</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <h1>🤰 Zwangerschap</h1>
+    <div class="kind-selector">
+      <select id="kind-select" onchange="kindWisselenZw()"></select>
+    </div>
+  </div>
+
+  <!-- Setup: nog niet ingesteld -->
+  <div id="zw-setup" style="display:none">
+    <div class="zw-setup-kaart">
+      <div class="zw-setup-icoon">🤰</div>
+      <h2>Zwangerschapsherinneringen bewaren</h2>
+      <p>Wil je de mooiste momenten van de zwangerschap opslaan?<br>
+         Dit is volledig optioneel — je kunt het altijd later toevoegen of overslaan.</p>
+      <div class="zw-setup-velden">
+        <label>Uitgerekende datum <span style="font-weight:400;text-transform:none">(optioneel)</span></label>
+        <input type="date" id="zw-uitgerekend">
+        <p class="zw-setup-hint">Laat leeg als je dit niet wil invullen.</p>
+
+        <label>Datum positieve test <span style="font-weight:400;text-transform:none">(optioneel)</span></label>
+        <input type="date" id="zw-ontdekt">
+        <p class="zw-setup-hint">Wanneer ontdekte je het goede nieuws?</p>
+      </div>
+      <div id="zw-melding-setup" class="sectie-melding"></div>
+      <button class="btn btn-groen" style="width:100%" onclick="zwSetupOpslaan()">Zwangerschap toevoegen</button>
+    </div>
+  </div>
+
+  <!-- Inhoud: al ingesteld -->
+  <div id="zw-inhoud" style="display:none">
+
+    <!-- Info balk -->
+    <div class="zw-info-balk">
+      <div class="zw-info-item">
+        <span class="zw-info-label">Uitgerekend</span>
+        <span class="zw-info-waarde" id="zw-info-uitgerekend">—</span>
+      </div>
+      <div class="zw-info-item">
+        <span class="zw-info-label">Positieve test</span>
+        <span class="zw-info-waarde" id="zw-info-ontdekt">—</span>
+      </div>
+      <div class="zw-info-edit">
+        <button class="btn btn-wit" onclick="document.getElementById('zw-setup').style.display='block';document.getElementById('zw-inhoud').style.display='none'">✏️ Aanpassen</button>
+      </div>
+    </div>
+
+    <!-- Trimester tabs -->
+    <div class="trim-tabs">
+      <button class="trim-tab actief" onclick="kiesTrimester(1)">
+        Trimester 1
+        <span class="trim-subtitel">Week 1 – 12</span>
+      </button>
+      <button class="trim-tab" onclick="kiesTrimester(2)">
+        Trimester 2
+        <span class="trim-subtitel">Week 13 – 27</span>
+      </button>
+      <button class="trim-tab" onclick="kiesTrimester(3)">
+        Trimester 3
+        <span class="trim-subtitel">Week 28 – geboorte</span>
+      </button>
+    </div>
+
+    <!-- Schrijfkaart -->
+    <div class="zw-schrijfkaart">
+      <h3>✍️ Herinnering opschrijven</h3>
+      <div class="zw-prompt-rij">
+        <span class="zw-prompt-tekst" id="zw-prompt"></span>
+        <button class="zw-prompt-btn" onclick="nieuwePromptZw()" title="Andere vraag">↻</button>
+      </div>
+      <input type="hidden" id="zw-trim-hidden" value="1">
+
+      <textarea id="zw-inhoud-inp" placeholder="Schrijf hier je herinnering..."></textarea>
+
+      <div class="zw-kaart-bottom">
+        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+          <label style="margin:0;text-transform:none;font-size:0.85rem">Datum:</label>
+          <input type="date" id="zw-datum-inp" style="width:auto">
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <div id="zw-melding-herinn" class="sectie-melding"></div>
+          <button class="btn btn-groen" onclick="zwHerinnOpslaan()">Opslaan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Herinneringen lijst -->
+    <div class="sectie">
+      <div class="sectie-header">
+        <div class="sectie-titel">📖 Opgeslagen herinneringen</div>
+      </div>
+      <div class="zw-herinn-lijst" id="zw-herinn-lijst">
+        <p class="zw-leeg-tekst">Nog niets opgeschreven.</p>
+      </div>
+    </div>
+
+    <!-- Foto's -->
+    <div class="sectie">
+      <div class="sectie-header">
+        <div class="sectie-titel">📷 Foto's bewaren</div>
+      </div>
+
+      <div class="zw-foto-upload">
+        <label class="zw-foto-upload-label" for="zw-foto-input">📁 Kies een foto</label>
+        <input type="file" id="zw-foto-input" accept="image/*" onchange="zwFotoPreview(this)">
+        <div class="zw-foto-hint">Echo's, buikfoto's, aankondigingen · max 20 MB</div>
+        <img id="zw-foto-preview" alt="Preview">
+      </div>
+
+      <div class="zw-foto-meta">
+        <div class="form-veld">
+          <label>Soort foto</label>
+          <select id="zw-foto-soort">
+            <option value="echo">🔊 Echo</option>
+            <option value="buik">🤰 Buikfoto</option>
+            <option value="aankondiging">🎉 Aankondiging</option>
+            <option value="overig">📷 Overig</option>
+          </select>
+        </div>
+        <div class="form-veld">
+          <label>Datum</label>
+          <input type="date" id="zw-foto-datum">
+        </div>
+        <button class="btn btn-groen" style="margin-top:auto;white-space:nowrap" onclick="zwFotoUploaden()">Uploaden</button>
+      </div>
+      <div class="form-veld" style="margin-bottom:1rem">
+        <label>Label (optioneel)</label>
+        <input type="text" id="zw-foto-label" placeholder="bijv. 12-wekenecho, 28 weken zwanger...">
+      </div>
+      <div id="zw-melding-foto" class="sectie-melding" style="margin-bottom:1rem"></div>
+
+      <div class="zw-galerij" id="zw-foto-galerij">
+        <p class="zw-leeg-tekst">Nog geen foto's toegevoegd.</p>
+      </div>
+    </div>
+
+    <!-- Mijlpalen -->
+    <div class="zw-mijl-sectie">
+      <h3>⭐ Zwangerschapsmijlpalen</h3>
+
+      <div class="zw-mijl-groep">
+        <div class="zw-mijl-groep-titel">Trimester 1 — Week 1–12</div>
+        <div class="zw-mijl-grid" id="zw-mijl-1"></div>
+      </div>
+
+      <div class="zw-mijl-groep">
+        <div class="zw-mijl-groep-titel">Trimester 2 — Week 13–27</div>
+        <div class="zw-mijl-grid" id="zw-mijl-2"></div>
+      </div>
+
+      <div class="zw-mijl-groep">
+        <div class="zw-mijl-groep-titel">Trimester 3 — Week 28 t/m geboorte</div>
+        <div class="zw-mijl-grid" id="zw-mijl-3"></div>
+      </div>
+    </div>
+
+  </div><!-- /zw-inhoud -->
+</div><!-- /main -->
+
+<!-- Modal: mijlpaal datum -->
+<div class="modal-overlay" id="modal-zw-mijl-datum">
+  <div class="modal" style="max-width:380px">
+    <h2>Datum bereikt</h2>
+    <p style="color:var(--tekst-mid);font-size:0.9rem;margin-bottom:1rem;font-weight:600" id="zw-mijl-datum-naam"></p>
+    <label>Op welke datum?</label>
+    <input type="date" id="zw-mijl-datum-input">
+    <div class="modal-btns">
+      <button class="btn btn-wit" style="flex:1" onclick="annuleerZwMijlDatum()">Annuleren</button>
+      <button class="btn btn-groen" style="flex:1" onclick="bevestigZwMijlDatum()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: foto lightbox -->
+<div class="modal-overlay" id="modal-zw-lightbox" onclick="zwSluitLightbox()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:680px;text-align:center">
+    <img id="zw-lightbox-img" src="" alt="" style="max-width:100%;max-height:60vh;border-radius:var(--radius-s);margin-bottom:0.75rem;object-fit:contain">
+    <div style="font-weight:700;color:var(--tekst);font-size:1rem;margin-bottom:0.25rem" id="zw-lightbox-label"></div>
+    <div style="color:var(--tekst-licht);font-size:0.88rem;font-weight:600" id="zw-lightbox-datum"></div>
+    <div style="margin-top:1rem"><button class="btn btn-wit" onclick="zwSluitLightbox()">Sluiten</button></div>
+  </div>
+</div>
+
+<script>
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://irvmkmxyqvkwzkkxnzkj.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlydm1rbXh5cXZrd3pra3huemtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MDA5MTksImV4cCI6MjA4OTE3NjkxOX0.Qg1lAqs7H0zFq4needCHCFAtzNCduG1mQLOX3nw1Hvk'
+  );
+
+  document.getElementById('zw-foto-datum').value = new Date().toISOString().split('T')[0];
+  document.getElementById('zw-datum-inp').value  = new Date().toISOString().split('T')[0];
+</script>
+<script src="js/zwangerschap.js"></script>
+<script>zwangerschapInit();</script>
+</body>
+</html>

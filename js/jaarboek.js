@@ -31,19 +31,32 @@ async function jaarboekGenereren() {
 
   try {
     // 2. Data ophalen
-    const [dagboek, mijlpalen, woordjes, metingen] = await Promise.all([
+    const [dagboek, mijlpalen, woordjes, metingen, zwData] = await Promise.all([
       sb.from('dagboek').select('*').eq('kind_id', actieveKind.id)
         .gte('datum', `${jaar}-01-01`).lte('datum', `${jaar}-12-31`).order('datum'),
       sb.from('mijlpalen').select('*').eq('kind_id', actieveKind.id).order('datum'),
       sb.from('woordjes').select('*').eq('kind_id', actieveKind.id).order('datum'),
       sb.from('metingen').select('*').eq('kind_id', actieveKind.id).order('datum'),
+      // Zwangerschap (optioneel — geen fout als tabel leeg is)
+      Promise.all([
+        sb.from('zwangerschap_info').select('*').eq('kind_id', actieveKind.id).maybeSingle(),
+        sb.from('zwangerschap_herinneringen').select('*').eq('kind_id', actieveKind.id).order('datum'),
+        sb.from('zwangerschap_mijlpalen').select('*').eq('kind_id', actieveKind.id).order('created_at'),
+      ]).catch(() => [{ data: null }, { data: [] }, { data: [] }]),
     ]);
+
+    const zwInfo    = zwData[0]?.data ?? null;
+    const zwHerinn  = zwData[1]?.data ?? [];
+    const zwMijl    = zwData[2]?.data ?? [];
+    const heeftZw   = zwInfo || zwHerinn.length > 0 || zwMijl.length > 0;
 
     // 3. PDF opbouwen
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
     pdfCover(doc, actieveKind, jaar);
+    // Zwangerschap als eerste hoofdstuk — alleen als er data is
+    if (heeftZw) pdfZwangerschapPagina(doc, zwInfo, zwHerinn, zwMijl);
     pdfDagboekPaginas(doc, dagboek.data || [], jaar);
     pdfMijlpalenPagina(doc, mijlpalen.data || []);
     pdfWoordjesPagina(doc, woordjes.data || []);
@@ -389,6 +402,108 @@ function pdfPaginaHeader(doc, titel, ondertitel) {
   }
 
   return y;
+}
+
+// ─── Zwangerschap pagina ──────────────────────────────────────────────────────
+
+function pdfZwangerschapPagina(doc, info, herinneringen, mijlpalen) {
+  const W = 210;
+  doc.addPage();
+  let y = pdfPaginaHeader(doc, 'Zwangerschap');
+
+  // Info balk
+  if (info) {
+    doc.setFillColor(...GROEN_LICHT);
+    doc.roundedRect(15, y, 180, 20, 4, 4, 'F');
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...GROEN);
+    if (info.ontdekt_datum) {
+      doc.text('Positieve test:', 22, y + 8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...TEKST);
+      doc.text(formatDatumLang(info.ontdekt_datum), 60, y + 8);
+    }
+    if (info.uitgerekende_datum) {
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...GROEN);
+      doc.text('Uitgerekend:', 22, y + 15);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...TEKST);
+      doc.text(formatDatumLang(info.uitgerekende_datum), 60, y + 15);
+    }
+    y += 28;
+  }
+
+  // Mijlpalen
+  if (mijlpalen.length > 0) {
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...GROEN);
+    doc.text('Mijlpalen', 15, y);
+    y += 8;
+
+    mijlpalen.forEach((m, i) => {
+      if (y > 265) { doc.addPage(); y = pdfPaginaHeader(doc, 'Zwangerschap (vervolg)'); }
+      if (i > 0) {
+        doc.setDrawColor(...GROEN_MID);
+        doc.setLineWidth(0.3);
+        doc.line(25, y - 2, 190, y - 2);
+      }
+      doc.setFillColor(...GROEN_LICHT);
+      doc.circle(22, y + 3, 3.5, 'F');
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...TEKST);
+      doc.text(m.naam || '', 30, y + 4);
+      if (m.datum) {
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...GRIJS);
+        doc.text(formatDatumLang(m.datum), 30, y + 10);
+      }
+      y += 17;
+    });
+    y += 6;
+  }
+
+  // Herinneringen per trimester
+  [1, 2, 3].forEach(nr => {
+    const entries = herinneringen.filter(h => h.trimester === nr);
+    if (entries.length === 0) return;
+
+    if (y > 240) { doc.addPage(); y = pdfPaginaHeader(doc, 'Zwangerschap (vervolg)'); }
+
+    const trimLabels = { 1: 'Trimester 1 — Week 1–12', 2: 'Trimester 2 — Week 13–27', 3: 'Trimester 3 — Week 28+' };
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...GROEN);
+    doc.text(trimLabels[nr], 15, y);
+    y += 10;
+
+    entries.forEach(e => {
+      if (y > 250) { doc.addPage(); y = pdfPaginaHeader(doc, 'Zwangerschap (vervolg)'); }
+
+      doc.setFillColor(...GROEN_LICHT);
+      doc.roundedRect(15, y, 180, 8, 2, 2, 'F');
+      doc.setFontSize(8.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...GROEN);
+      doc.text(formatDatumLang(e.datum), 20, y + 5.5);
+      y += 11;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...TEKST);
+      const regels = doc.splitTextToSize(e.inhoud || '', 170);
+      regels.forEach(regel => {
+        if (y > 270) { doc.addPage(); y = pdfPaginaHeader(doc, 'Zwangerschap (vervolg)'); }
+        doc.text(regel, 20, y);
+        y += 5.5;
+      });
+      y += 6;
+    });
+  });
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
