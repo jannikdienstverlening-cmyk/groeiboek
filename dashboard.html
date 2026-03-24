@@ -142,6 +142,16 @@
 
   <div id="dashboard-inhoud" style="display:none">
 
+    <!-- Welkomstbanner -->
+    <div id="welkomst-banner" class="welkomst-banner">
+      <div>
+        <div class="welkomst-naam" id="welkomst-naam">Laden...</div>
+        <div class="welkomst-leeftijd" id="welkomst-leeftijd">—</div>
+        <div class="welkomst-sub" id="welkomst-sub"></div>
+      </div>
+      <div class="welkomst-icoon" id="welkomst-icoon">🌱</div>
+    </div>
+
     <!-- Stat kaarten -->
     <div class="stats">
       <div class="stat-kaart">
@@ -513,6 +523,25 @@
     const maanden  = (nu.getFullYear() - geb.getFullYear()) * 12 + (nu.getMonth() - geb.getMonth());
     document.getElementById('stat-leeftijd').textContent =
       maanden < 24 ? maanden + ' mnd' : Math.floor(maanden / 12) + ' jr';
+
+    // Welkomstbanner vullen
+    const iconen = ['🌱','🐣','🍼','🌙','⭐','🎠','🎈','🌈','🦋','🐥','🌸','🎀'];
+    const icoon  = iconen[Math.min(maanden, iconen.length - 1)];
+    const leeftijdTekst = maanden === 0 ? 'Pasgeboren' :
+      maanden < 24 ? `${maanden} maand${maanden === 1 ? '' : 'en'} oud` :
+      `${Math.floor(maanden / 12)} jaar${maanden % 12 ? ' en ' + (maanden % 12) + ' maanden' : ''} oud`;
+    const subTeksten = [
+      'Elk momentje is het bewaren waard 💛',
+      'Groei en bloei, lieve kleintje ✨',
+      'Zoveel mooie herinneringen te maken 🌷',
+      'Jullie avontuur samen is net begonnen 🌟',
+    ];
+    const sub = subTeksten[maanden % subTeksten.length];
+
+    document.getElementById('welkomst-naam').textContent = kind.naam;
+    document.getElementById('welkomst-leeftijd').textContent = leeftijdTekst;
+    document.getElementById('welkomst-sub').textContent = sub;
+    document.getElementById('welkomst-icoon').textContent = icoon;
   }
 
   // ─── Kind modal ──────────────────────────────────────────────────────────────
