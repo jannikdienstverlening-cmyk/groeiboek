@@ -98,8 +98,18 @@
 <!-- Sidebar -->
 <div class="sidebar">
   <div class="sidebar-logo">
-    🌱 Groeiboek
-    <span class="tagline">Herinneringen bewaren</span>
+    <svg class="logo-voet" width="22" height="27" viewBox="0 0 24 30" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="12" cy="21" rx="8.5" ry="9"/>
+      <circle cx="4" cy="9.5" r="3.2"/>
+      <circle cx="9" cy="6.5" r="2.7"/>
+      <circle cx="14.5" cy="6" r="2.3"/>
+      <circle cx="19.5" cy="7.5" r="2"/>
+      <circle cx="23" cy="11" r="1.7"/>
+    </svg>
+    <div>
+      Groeiboek
+      <span class="tagline">Herinneringen bewaren</span>
+    </div>
   </div>
   <nav>
     <a href="dashboard.html" class="actief">📊 Dashboard <span id="premium-badge" class="premium-badge" style="display:none">★ Premium</span></a>
@@ -525,7 +535,7 @@
       maanden < 24 ? maanden + ' mnd' : Math.floor(maanden / 12) + ' jr';
 
     // Welkomstbanner vullen
-    const iconen = ['🌱','🐣','🍼','🌙','⭐','🎠','🎈','🌈','🦋','🐥','🌸','🎀'];
+    const iconen = ['👶','🐣','🍼','🌙','⭐','🎠','🎈','🌈','🦋','🐥','🌸','🎀'];
     const icoon  = iconen[Math.min(maanden, iconen.length - 1)];
     const leeftijdTekst = maanden === 0 ? 'Pasgeboren' :
       maanden < 24 ? `${maanden} maand${maanden === 1 ? '' : 'en'} oud` :

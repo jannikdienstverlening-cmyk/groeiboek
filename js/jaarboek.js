@@ -362,7 +362,7 @@ function pdfPaginaHeader(doc, titel, ondertitel) {
   doc.setTextColor(...WIT);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text('🌱 Groeiboek', 15, 10);
+  doc.text('Groeiboek', 15, 10);
 
   // Kindnaam rechts
   if (actieveKind?.naam) {

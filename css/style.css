@@ -184,6 +184,14 @@ body.met-sidebar {
   letter-spacing: -0.3px;
   border-bottom: 1px solid rgba(255,255,255,0.12);
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-voet {
+  flex-shrink: 0;
+  opacity: 0.92;
 }
 
 .sidebar-logo .tagline {
