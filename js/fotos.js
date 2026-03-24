@@ -59,19 +59,15 @@ async function fotoUploaden() {
   const { data: urlData } = sb.storage.from('fotos').getPublicUrl(pad);
   const publiekUrl = urlData.publicUrl;
 
-  // Debug: toon exacte insert data in console
-  const insertData = {
+  // Opslaan in tabel
+  const { error: dbError } = await sb.from('fotos').insert({
     kind_id: window.fotosKindId,
     user_id: user.id,
     url:     publiekUrl,
     pad,
     label:   label || null,
     datum:   new Date().toISOString().split('T')[0],
-  };
-  console.log('[fotos] insert data:', insertData);
-
-  // Opslaan in tabel
-  const { error: dbError } = await sb.from('fotos').insert(insertData);
+  });
 
   if (dbError) {
     console.error('[fotos] insert error:', dbError);

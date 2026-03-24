@@ -5,104 +5,209 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Groeiboek — Dagboek</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/style.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f4faf7; display: flex; min-height: 100vh; }
-
-    /* ── Sidebar ── */
-    .sidebar { width: 240px; background: #1e6e55; color: white; display: flex; flex-direction: column; padding: 1.5rem 0; min-height: 100vh; position: fixed; }
-    .sidebar-logo { padding: 0 1.5rem 1.5rem; font-size: 1.3rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); }
-    .sidebar nav { flex: 1; padding: 1rem 0; }
-    .sidebar nav a { display: block; padding: 0.75rem 1.5rem; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.95rem; }
-    .sidebar nav a:hover, .sidebar nav a.actief { background: rgba(255,255,255,0.15); color: white; }
-    .sidebar-bottom { padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.15); }
-    .btn-uitlog { width: 100%; padding: 0.6rem; background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
-    .btn-uitlog:hover { background: rgba(255,255,255,0.25); }
-
-    /* ── Main ── */
-    .main { margin-left: 240px; flex: 1; padding: 2rem; max-width: 860px; }
-    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-    .topbar h1 { font-size: 1.5rem; color: #1e6e55; }
-    .kind-selector { display: flex; align-items: center; gap: 0.75rem; }
-    select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; outline: none; background: white; }
-
     /* ── Schrijfkaart ── */
-    .schrijfkaart { background: white; border-radius: 16px; padding: 1.75rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 2rem; }
+    .schrijfkaart {
+      background: var(--surface);
+      border-radius: var(--radius-l);
+      padding: 1.75rem;
+      box-shadow: var(--schaduw);
+      margin-bottom: 2rem;
+      border: 1px solid var(--rand);
+    }
 
-    /* Periode-selector */
+    /* ── Periode-selector ── */
     .periode-rij { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .periode-btn { padding: 0.45rem 1rem; border: 1.5px solid #ddd; border-radius: 20px; background: white; color: #555; font-size: 0.88rem; cursor: pointer; transition: all 0.15s; }
-    .periode-btn:hover { border-color: #1e6e55; color: #1e6e55; }
-    .periode-btn.actief { background: #1e6e55; color: white; border-color: #1e6e55; }
 
-    /* Datumrij */
+    .periode-btn {
+      padding: 0.45rem 1rem;
+      border: 1.5px solid var(--rand);
+      border-radius: 20px;
+      background: var(--surface);
+      color: var(--tekst-mid);
+      font-size: 0.87rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--overgang);
+    }
+
+    .periode-btn:hover { border-color: var(--groen); color: var(--groen); }
+
+    .periode-btn.actief {
+      background: var(--groen);
+      color: white;
+      border-color: var(--groen);
+      box-shadow: 0 2px 8px rgba(40,137,108,0.25);
+    }
+
+    /* ── Datumrij ── */
     .datum-rij { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
-    input[type="date"] { padding: 0.55rem 0.9rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; outline: none; }
-    input[type="date"]:focus { border-color: #1e6e55; }
-    .leeftijd-badge { font-size: 0.82rem; color: #1e6e55; background: #e8f5f0; padding: 0.3rem 0.75rem; border-radius: 20px; }
+    .datum-rij input[type="date"] { width: auto; }
 
-    /* Prompt */
-    .prompt-rij { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem; }
-    .prompt-tekst { font-size: 0.9rem; color: #888; font-style: italic; flex: 1; line-height: 1.5; }
-    .btn-nieuwe-prompt { background: none; border: none; color: #aaa; font-size: 1rem; cursor: pointer; padding: 0; line-height: 1; flex-shrink: 0; margin-top: 2px; }
-    .btn-nieuwe-prompt:hover { color: #1e6e55; }
+    .leeftijd-badge {
+      font-size: 0.8rem;
+      color: var(--groen);
+      background: var(--groen-licht);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-weight: 700;
+      border: 1px solid var(--groen-mid);
+    }
 
-    /* Tekstvak */
-    textarea { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; font-family: inherit; line-height: 1.6; resize: vertical; min-height: 160px; outline: none; color: #222; }
-    textarea:focus { border-color: #1e6e55; }
+    /* ── Prompt ── */
+    .prompt-rij { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.85rem; }
 
-    /* Sfeer */
+    .prompt-tekst {
+      font-size: 0.88rem;
+      color: var(--tekst-licht);
+      font-style: italic;
+      flex: 1;
+      line-height: 1.55;
+      font-weight: 600;
+    }
+
+    .btn-nieuwe-prompt {
+      background: none;
+      border: none;
+      color: var(--tekst-licht);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: var(--overgang);
+    }
+
+    .btn-nieuwe-prompt:hover { color: var(--groen); transform: rotate(45deg); }
+
+    /* ── Tekstvak ── */
+    textarea {
+      min-height: 160px;
+    }
+
+    /* ── Sfeer ── */
     .sfeer-rij { display: flex; gap: 0.5rem; margin-top: 1.1rem; flex-wrap: wrap; align-items: center; }
-    .sfeer-label { font-size: 0.82rem; color: #aaa; margin-right: 0.25rem; }
-    .sfeer-btn { padding: 0.4rem 0.9rem; border: 1.5px solid #ddd; border-radius: 20px; background: white; font-size: 0.85rem; cursor: pointer; color: #555; transition: all 0.15s; }
-    .sfeer-btn:hover { border-color: #1e6e55; }
-    .sfeer-btn.actief { background: #f0faf6; border-color: #1e6e55; color: #1e6e55; font-weight: 500; }
+    .sfeer-label { font-size: 0.78rem; color: var(--tekst-licht); margin-right: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
 
-    /* Onderkant */
+    .sfeer-btn {
+      padding: 0.4rem 0.9rem;
+      border: 1.5px solid var(--rand);
+      border-radius: 20px;
+      background: var(--surface);
+      font-size: 0.85rem;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--tekst-mid);
+      transition: var(--overgang);
+    }
+
+    .sfeer-btn:hover { border-color: var(--groen); color: var(--groen); }
+
+    .sfeer-btn.actief {
+      background: var(--groen-licht);
+      border-color: var(--groen);
+      color: var(--groen);
+    }
+
+    /* ── Onderkant schrijfkaart ── */
     .kaart-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
-    .btn-opslaan { padding: 0.65rem 1.75rem; background: #1e6e55; color: white; border: none; border-radius: 10px; font-size: 0.95rem; cursor: pointer; font-weight: 500; }
-    .btn-opslaan:hover { background: #165c45; }
-    .melding { font-size: 0.88rem; padding: 0.5rem 1rem; border-radius: 8px; display: none; }
-    .melding.ok { background: #e8f5f0; color: #1e6e55; display: block; }
-    .melding.fout { background: #fdecea; color: #c0392b; display: block; }
+
+    .btn-opslaan {
+      padding: 0.65rem 1.75rem;
+      background: linear-gradient(135deg, var(--groen), var(--groen-donker));
+      color: white;
+      border: none;
+      border-radius: var(--radius-s);
+      font-size: 0.95rem;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--overgang);
+      box-shadow: 0 2px 10px rgba(40,137,108,0.28);
+    }
+
+    .btn-opslaan:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(40,137,108,0.36); }
 
     /* ── Leegscherm ── */
-    .leeg-scherm { background: white; border-radius: 16px; padding: 3rem 2rem; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .leeg-scherm {
+      background: var(--surface);
+      border-radius: var(--radius-l);
+      padding: 3rem 2rem;
+      text-align: center;
+      box-shadow: var(--schaduw);
+      border: 1px solid var(--rand);
+    }
+
     .leeg-scherm .leeg-icoon { font-size: 3rem; margin-bottom: 1rem; }
-    .leeg-scherm h2 { color: #1e6e55; font-size: 1.2rem; margin-bottom: 0.6rem; }
-    .leeg-scherm p { color: #888; font-size: 0.92rem; line-height: 1.6; max-width: 380px; margin: 0 auto; }
+    .leeg-scherm h2 { color: var(--tekst); font-size: 1.2rem; font-weight: 800; margin-bottom: 0.6rem; letter-spacing: -0.3px; }
+    .leeg-scherm p { color: var(--tekst-licht); font-size: 0.92rem; line-height: 1.6; max-width: 380px; margin: 0 auto; font-weight: 600; }
 
     /* ── Tijdlijn ── */
-    .tijdlijn-titel { font-size: 1rem; font-weight: 600; color: #1e6e55; margin-bottom: 1.25rem; }
+    .tijdlijn-titel { font-size: 0.85rem; font-weight: 800; color: var(--tekst-mid); margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
     .tijdlijn { position: relative; padding-left: 1.5rem; }
-    .tijdlijn::before { content: ''; position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: #d4ede4; }
+    .tijdlijn::before { content: ''; position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: var(--groen-mid); }
+
     .tl-item { position: relative; margin-bottom: 1.25rem; }
-    .tl-dot { position: absolute; left: -1.5rem; top: 1rem; width: 14px; height: 14px; background: #1e6e55; border: 3px solid #f4faf7; border-radius: 50%; z-index: 1; }
-    .tl-kaart { background: white; border-radius: 12px; padding: 1.1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer; transition: box-shadow 0.15s; border-left: 3px solid #1e6e55; }
-    .tl-kaart:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
-    .tl-kaart.open { border-left-color: #2d9c72; }
+
+    .tl-dot {
+      position: absolute;
+      left: -1.5rem;
+      top: 1rem;
+      width: 14px;
+      height: 14px;
+      background: var(--groen);
+      border: 3px solid var(--bg);
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    .tl-kaart {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.25rem;
+      box-shadow: var(--schaduw);
+      cursor: pointer;
+      transition: var(--overgang);
+      border: 1px solid var(--rand);
+      border-left: 3px solid var(--groen);
+    }
+
+    .tl-kaart:hover { box-shadow: var(--schaduw-hover); }
+    .tl-kaart.open { border-left-color: var(--groen-donker); }
+
     .tl-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; gap: 0.5rem; flex-wrap: wrap; }
     .tl-meta { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
-    .tl-periode { font-size: 0.78rem; background: #e8f5f0; color: #1e6e55; padding: 0.2rem 0.6rem; border-radius: 10px; font-weight: 500; }
-    .tl-leeftijd { font-size: 0.78rem; background: #f0f0f0; color: #666; padding: 0.2rem 0.6rem; border-radius: 10px; }
-    .tl-sfeer { font-size: 0.78rem; background: #fffbe6; color: #7a6300; padding: 0.2rem 0.6rem; border-radius: 10px; }
-    .tl-datum { font-size: 0.78rem; color: #bbb; white-space: nowrap; }
-    .tl-preview { font-size: 0.9rem; color: #555; line-height: 1.55; }
-    .tl-volledig { font-size: 0.9rem; color: #333; line-height: 1.7; }
-    .tl-laden { text-align: center; padding: 2rem; color: #aaa; font-size: 0.9rem; }
+
+    .tl-periode { font-size: 0.75rem; background: var(--groen-licht); color: var(--groen-donker); padding: 0.2rem 0.6rem; border-radius: 10px; font-weight: 700; }
+    .tl-leeftijd { font-size: 0.75rem; background: var(--bg); color: var(--tekst-mid); padding: 0.2rem 0.6rem; border-radius: 10px; font-weight: 600; }
+    .tl-sfeer { font-size: 0.75rem; background: var(--goud-licht); color: #7A6300; padding: 0.2rem 0.6rem; border-radius: 10px; font-weight: 600; }
+    .tl-datum { font-size: 0.75rem; color: var(--tekst-licht); white-space: nowrap; font-weight: 600; }
+
+    .tl-preview { font-size: 0.9rem; color: var(--tekst-mid); line-height: 1.55; font-weight: 500; }
+    .tl-volledig { font-size: 0.9rem; color: var(--tekst); line-height: 1.7; font-weight: 500; }
+    .tl-laden { text-align: center; padding: 2rem; color: var(--tekst-licht); font-size: 0.9rem; font-weight: 600; }
   </style>
 </head>
-<body>
+<body class="met-sidebar">
 
 <!-- Sidebar -->
 <div class="sidebar">
-  <div class="sidebar-logo">🌱 Groeiboek</div>
+  <div class="sidebar-logo">
+    🌱 Groeiboek
+    <span class="tagline">Herinneringen bewaren</span>
+  </div>
   <nav>
     <a href="dashboard.html">📊 Dashboard</a>
     <a href="dagboek.html" class="actief">📖 Dagboek</a>
     <a href="dashboard.html#groei">📏 Groeicurve</a>
     <a href="dashboard.html#mijlpalen">⭐ Mijlpalen</a>
     <a href="dashboard.html#woordjes">🗣️ Woordjes</a>
+    <a href="dashboard.html#fotos">📷 Foto's</a>
   </nav>
   <div class="sidebar-bottom">
     <button class="btn-uitlog" onclick="uitloggen()">↩ Uitloggen</button>
@@ -181,7 +286,6 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlydm1rbXh5cXZrd3pra3huemtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MDA5MTksImV4cCI6MjA4OTE3NjkxOX0.Qg1lAqs7H0zFq4needCHCFAtzNCduG1mQLOX3nw1Hvk'
   );
 
-  // Zet standaard datum op vandaag
   document.getElementById('inp-datum').value = new Date().toISOString().split('T')[0];
 </script>
 <script src="js/prompts.js"></script>

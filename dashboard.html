@@ -7,140 +7,41 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f4faf7; display: flex; min-height: 100vh; }
-
-    /* ── Sidebar ── */
-    .sidebar { width: 240px; background: #1e6e55; color: white; display: flex; flex-direction: column; padding: 1.5rem 0; min-height: 100vh; position: fixed; top: 0; }
-    .sidebar-logo { padding: 0 1.5rem 1.5rem; font-size: 1.3rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.15); }
-    .sidebar nav { flex: 1; padding: 1rem 0; }
-    .sidebar nav a { display: block; padding: 0.75rem 1.5rem; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.95rem; }
-    .sidebar nav a:hover, .sidebar nav a.actief { background: rgba(255,255,255,0.15); color: white; }
-    .sidebar-bottom { padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.15); }
-    .btn-uitlog { width: 100%; padding: 0.6rem; background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
-    .btn-uitlog:hover { background: rgba(255,255,255,0.25); }
-
-    /* ── Main ── */
-    .main { margin-left: 240px; flex: 1; padding: 2rem; max-width: 1000px; }
-    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-    .topbar h1 { font-size: 1.5rem; color: #1e6e55; }
-    .kind-selector { display: flex; align-items: center; gap: 0.75rem; }
-    select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; outline: none; background: white; }
-    .btn { padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
-    .btn-groen { background: #1e6e55; color: white; }
-    .btn-groen:hover { background: #165c45; }
-    .btn-wit { background: white; color: #1e6e55; border: 1px solid #1e6e55; }
-    label { display: block; font-size: 0.85rem; color: #444; margin-bottom: 0.3rem; margin-top: 1rem; }
-    input[type="text"], input[type="number"], input[type="date"] { width: 100%; padding: 0.7rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; }
-    input:focus { border-color: #1e6e55; }
-    .modal-btns { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
-
-    /* ── Welkom / leeg ── */
-    .welkom { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; margin-bottom: 2rem; }
-    .welkom h2 { color: #1e6e55; margin-bottom: 0.5rem; }
-    .welkom p { color: #888; margin-bottom: 1.5rem; }
-
-    /* ── Stat kaarten ── */
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-    .stat-kaart { background: white; border-radius: 12px; padding: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .stat-kaart .getal { font-size: 2rem; font-weight: bold; color: #1e6e55; }
-    .stat-kaart .label { font-size: 0.85rem; color: #888; margin-top: 0.2rem; }
-
-    /* ── Sectie kaart ── */
-    .sectie { background: white; border-radius: 16px; padding: 1.75rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 2rem; }
-    .sectie-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-    .sectie-titel { font-size: 1.1rem; font-weight: 700; color: #1e6e55; }
-    .sectie-melding { font-size: 0.88rem; padding: 0.5rem 1rem; border-radius: 8px; display: none; margin-top: 0.75rem; }
-    .sectie-melding.ok   { background: #e8f5f0; color: #1e6e55; display: block; }
-    .sectie-melding.fout { background: #fdecea; color: #c0392b; display: block; }
-
-    /* ── Groeicurve formulier ── */
+    /* ── Groeicurve ── */
     .groei-form { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.75rem; align-items: end; margin-bottom: 1.5rem; }
     .groei-form label { margin-top: 0; }
     .groei-form .form-veld { display: flex; flex-direction: column; }
     .groei-form input { margin-top: auto; }
     @media (max-width: 640px) { .groei-form { grid-template-columns: 1fr 1fr; } }
 
-    /* ── Groeicurve chart wrapper ── */
     .chart-wrapper { position: relative; height: 280px; margin-bottom: 1.5rem; }
 
-    /* ── Metingen tabel ── */
-    .data-tabel { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    .data-tabel th { text-align: left; padding: 0.6rem 0.75rem; color: #888; font-weight: 500; border-bottom: 2px solid #eee; }
-    .data-tabel td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #f0f0f0; color: #333; }
-    .data-tabel tr:last-child td { border-bottom: none; }
-    .data-tabel tr:hover td { background: #f9fdf9; }
-
-    /* ── Mijlpalen checklist ── */
+    /* ── Mijlpalen ── */
     .mijlpalen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.6rem; margin-bottom: 1.5rem; }
-    .mijl-check-item { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.9rem; border: 1.5px solid #eee; border-radius: 10px; transition: all 0.15s; }
-    .mijl-check-item.gedaan { background: #f0faf6; border-color: #b2dfc8; }
-    .mijl-check-label { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; flex: 1; }
-    .mijl-check-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: #1e6e55; cursor: pointer; flex-shrink: 0; }
-    .mijl-icoon { font-size: 1.1rem; }
-    .mijl-naam { font-size: 0.88rem; color: #333; }
-    .mijl-check-item.gedaan .mijl-naam { color: #1e6e55; font-weight: 500; }
-    .mijl-datum-badge { font-size: 0.75rem; color: #1e6e55; background: #d4ede4; padding: 0.15rem 0.5rem; border-radius: 10px; white-space: nowrap; margin-left: 0.5rem; flex-shrink: 0; }
 
-    /* ── Mijlpalen tijdlijn ── */
-    .mijl-tl-titel { font-size: 0.95rem; font-weight: 600; color: #555; margin-bottom: 1rem; margin-top: 0.5rem; }
+    .mijl-check-item { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.9rem; border: 1.5px solid var(--rand); border-radius: 10px; transition: var(--overgang); }
+    .mijl-check-item.gedaan { background: var(--groen-licht); border-color: var(--groen-mid); }
+    .mijl-check-label { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; flex: 1; }
+    .mijl-check-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--groen); cursor: pointer; flex-shrink: 0; }
+    .mijl-icoon { font-size: 1.1rem; }
+    .mijl-naam { font-size: 0.88rem; color: var(--tekst); font-weight: 600; }
+    .mijl-check-item.gedaan .mijl-naam { color: var(--groen); }
+    .mijl-datum-badge { font-size: 0.73rem; color: var(--groen); background: var(--groen-mid); padding: 0.15rem 0.5rem; border-radius: 10px; white-space: nowrap; margin-left: 0.5rem; flex-shrink: 0; font-weight: 700; }
+
+    /* Mijlpalen tijdlijn */
+    .mijl-tl-titel { font-size: 0.85rem; font-weight: 800; color: var(--tekst-mid); margin-bottom: 1rem; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; }
     .mijl-tijdlijn { display: flex; flex-direction: column; gap: 0.75rem; }
     .mijl-tl-item { display: flex; align-items: center; gap: 1rem; }
-    .mijl-tl-dot { width: 40px; height: 40px; background: #e8f5f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; border: 2px solid #b2dfc8; }
+    .mijl-tl-dot { width: 42px; height: 42px; background: var(--groen-licht); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; border: 2px solid var(--groen-mid); }
     .mijl-tl-inhoud { flex: 1; }
-    .mijl-tl-naam { font-size: 0.92rem; font-weight: 500; color: #222; }
-    .mijl-tl-datum { font-size: 0.8rem; color: #aaa; margin-top: 0.1rem; }
-    .tl-leeg { color: #aaa; font-size: 0.9rem; font-style: italic; }
+    .mijl-tl-naam { font-size: 0.92rem; font-weight: 700; color: var(--tekst); }
+    .mijl-tl-datum { font-size: 0.78rem; color: var(--tekst-licht); margin-top: 0.1rem; font-weight: 600; }
+    .tl-leeg { color: var(--tekst-licht); font-size: 0.9rem; font-style: italic; }
 
-    /* ── Modals ── */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; justify-content: center; align-items: center; padding: 1rem; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: white; border-radius: 16px; padding: 2rem; width: 100%; max-width: 420px; }
-    .modal h2 { color: #1e6e55; margin-bottom: 1.5rem; }
-
-    /* ── Divider ── */
-    .sectie-divider { border: none; border-top: 1px solid #eee; margin: 1.5rem 0; }
-
-    /* ── Jaarboek balk ── */
-    .jaarboek-balk { background: linear-gradient(135deg, #1e6e55 0%, #2d9c72 100%); border-radius: 14px; padding: 1.1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; box-shadow: 0 4px 16px rgba(30,110,85,0.2); flex-wrap: wrap; }
-    .jaarboek-balk-tekst h3 { color: white; font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; }
-    .jaarboek-balk-tekst p { color: rgba(255,255,255,0.75); font-size: 0.82rem; }
-    .jaarboek-acties { display: flex; align-items: center; gap: 0.75rem; }
-    .jaarboek-acties select { padding: 0.45rem 0.75rem; border: none; border-radius: 8px; font-size: 0.9rem; outline: none; background: rgba(255,255,255,0.15); color: white; cursor: pointer; }
-    .jaarboek-acties select option { background: #1e6e55; color: white; }
-    .btn-jaarboek { padding: 0.55rem 1.2rem; background: white; color: #1e6e55; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
-    .btn-jaarboek:hover { background: #f0faf6; }
-    .btn-jaarboek:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    /* ── Premium badge ── */
-    .premium-badge { display:inline-flex; align-items:center; gap:0.3rem; background:#f4c542; color:#7a5500; font-size:0.72rem; font-weight:700; padding:0.2rem 0.55rem; border-radius:20px; margin-left:0.5rem; vertical-align:middle; }
-    .sidebar-upgrade { margin:0.5rem 1.5rem 0; }
-    .btn-upgrade { display:block; width:100%; padding:0.55rem; background:linear-gradient(135deg,#f4c542,#f4a83a); color:#7a5500; border:none; border-radius:8px; font-size:0.85rem; font-weight:600; cursor:pointer; text-align:center; }
-    .btn-upgrade:hover { opacity:0.9; }
-
-    /* ── Betaald banner ── */
-    .betaald-banner { display:none; background:#e8f5f0; border:1.5px solid #b2dfc8; color:#1e6e55; padding:0.9rem 1.25rem; border-radius:12px; margin-bottom:1.5rem; font-size:0.95rem; font-weight:500; }
-
-    /* ── Upgrade modal ── */
-    .upgrade-modal { max-width:480px; }
-    .upgrade-modal h2 { text-align:center; }
-    .upgrade-intro { text-align:center; color:#888; font-size:0.92rem; margin-bottom:1.5rem; }
-    .upgrade-plannen { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.25rem; }
-    .upgrade-plan { border:2px solid #eee; border-radius:14px; padding:1.25rem; text-align:center; transition:border-color 0.15s; }
-    .upgrade-plan.aanbevolen { border-color:#1e6e55; background:#f9fdf9; }
-    .upgrade-plan .plan-label { font-size:0.75rem; font-weight:700; text-transform:uppercase; color:#aaa; margin-bottom:0.4rem; }
-    .upgrade-plan.aanbevolen .plan-label { color:#1e6e55; }
-    .upgrade-plan .plan-prijs { font-size:1.9rem; font-weight:800; color:#1e6e55; line-height:1; }
-    .upgrade-plan .plan-per { font-size:0.8rem; color:#aaa; margin-bottom:0.75rem; }
-    .upgrade-plan .plan-korting { font-size:0.78rem; background:#fff3cd; color:#856404; padding:0.2rem 0.5rem; border-radius:10px; margin-bottom:0.75rem; display:inline-block; }
-    .btn-checkout { width:100%; padding:0.65rem; border:none; border-radius:8px; font-size:0.9rem; font-weight:600; cursor:pointer; }
-    .btn-checkout-groen { background:#1e6e55; color:white; }
-    .btn-checkout-groen:hover { background:#165c45; }
-    .btn-checkout-wit { background:white; color:#1e6e55; border:1.5px solid #1e6e55; }
-    .btn-checkout-wit:hover { background:#f4faf7; }
-    .upgrade-voordelen { list-style:none; font-size:0.88rem; color:#555; margin-bottom:1.25rem; display:flex; flex-direction:column; gap:0.4rem; }
-    .upgrade-voordelen li::before { content:'✓ '; color:#1e6e55; font-weight:700; }
+    /* Mijlpaal datum modal */
+    #modal-mijlpaal-datum .modal { max-width: 380px; }
 
     /* ── Woordjes ── */
     .woord-form { display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; align-items: end; margin-bottom: 1rem; }
@@ -148,44 +49,58 @@
     .woord-form label { margin-top: 0; }
     @media (max-width: 520px) { .woord-form { grid-template-columns: 1fr; } }
     .zoekbalk { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem; }
-    .zoekbalk input { flex: 1; padding: 0.6rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; outline: none; }
-    .zoekbalk input:focus { border-color: #1e6e55; }
+    .zoekbalk input { flex: 1; }
     .woordjes-lijst { display: flex; flex-wrap: wrap; gap: 0.6rem; }
-    .woord-chip { display: flex; flex-direction: column; align-items: center; background: #f0faf6; border: 1.5px solid #b2dfc8; border-radius: 12px; padding: 0.5rem 0.9rem; }
-    .woord-tekst { font-size: 1rem; font-weight: 600; color: #1e6e55; }
-    .woord-datum { font-size: 0.72rem; color: #aaa; margin-top: 0.1rem; }
-    .woordjes-leeg { color: #aaa; font-size: 0.9rem; font-style: italic; }
+    .woord-chip { display: flex; flex-direction: column; align-items: center; background: var(--groen-licht); border: 1.5px solid var(--groen-mid); border-radius: 12px; padding: 0.5rem 0.9rem; transition: var(--overgang); }
+    .woord-chip:hover { border-color: var(--groen); background: #D8F0E5; }
+    .woord-tekst { font-size: 1rem; font-weight: 800; color: var(--groen); }
+    .woord-datum { font-size: 0.7rem; color: var(--tekst-licht); margin-top: 0.1rem; font-weight: 600; }
+    .woordjes-leeg { color: var(--tekst-licht); font-size: 0.9rem; font-style: italic; }
 
-    /* ── Foto upload ── */
-    .foto-upload-gebied { border: 2px dashed #b2dfc8; border-radius: 12px; padding: 1.5rem; text-align: center; background: #f9fdf9; margin-bottom: 1.25rem; }
+    /* ── Foto's ── */
+    .foto-upload-gebied { border: 2px dashed var(--groen-mid); border-radius: var(--radius); padding: 1.5rem; text-align: center; background: var(--groen-licht); margin-bottom: 1.25rem; transition: var(--overgang); }
+    .foto-upload-gebied:hover { border-color: var(--groen); }
     .foto-upload-gebied input[type="file"] { display: none; }
-    .foto-upload-label { cursor: pointer; display: inline-block; padding: 0.6rem 1.25rem; background: #1e6e55; color: white; border-radius: 8px; font-size: 0.9rem; margin-bottom: 0.75rem; }
-    .foto-upload-label:hover { background: #165c45; }
-    #foto-preview { max-width: 100%; max-height: 220px; border-radius: 10px; margin-top: 0.75rem; display: none; object-fit: cover; }
+    .foto-upload-label { cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; background: linear-gradient(135deg, var(--groen), var(--groen-donker)); color: white; border-radius: var(--radius-s); font-size: 0.9rem; font-weight: 700; margin-bottom: 0.6rem; box-shadow: 0 2px 8px rgba(40,137,108,0.28); transition: var(--overgang); }
+    .foto-upload-label:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(40,137,108,0.36); }
+    .foto-upload-hint { font-size: 0.78rem; color: var(--tekst-licht); font-weight: 600; }
+    #foto-preview { max-width: 100%; max-height: 220px; border-radius: var(--radius-s); margin-top: 0.75rem; display: none; object-fit: cover; }
     .foto-label-rij { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; align-items: end; margin-bottom: 0.75rem; }
     .foto-label-rij .form-veld { display: flex; flex-direction: column; }
     .foto-label-rij label { margin-top: 0; }
 
-    /* ── Galerij ── */
     .foto-galerij { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
-    .galerij-item { border-radius: 10px; overflow: hidden; cursor: pointer; position: relative; background: #eee; aspect-ratio: 1; }
+    .galerij-item { border-radius: var(--radius-s); overflow: hidden; cursor: pointer; position: relative; background: var(--bg); aspect-ratio: 1; }
     .galerij-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s; display: block; }
-    .galerij-item:hover img { transform: scale(1.04); }
-    .galerij-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.45); color: white; font-size: 0.75rem; padding: 0.3rem 0.5rem; text-align: center; }
-    .galerij-leeg { color: #aaa; font-size: 0.9rem; font-style: italic; }
+    .galerij-item:hover img { transform: scale(1.05); }
+    .galerij-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.48); color: white; font-size: 0.73rem; padding: 0.3rem 0.5rem; text-align: center; font-weight: 600; }
+    .galerij-leeg { color: var(--tekst-licht); font-size: 0.9rem; font-style: italic; }
 
-    /* ── Lightbox ── */
     #modal-lightbox .modal { max-width: 680px; text-align: center; }
-    #lightbox-img { max-width: 100%; max-height: 60vh; border-radius: 10px; margin-bottom: 0.75rem; object-fit: contain; }
-    .lightbox-meta { color: #888; font-size: 0.88rem; }
-    .lightbox-naam { font-weight: 600; color: #222; font-size: 1rem; margin-bottom: 0.25rem; }
+    #lightbox-img { max-width: 100%; max-height: 60vh; border-radius: var(--radius-s); margin-bottom: 0.75rem; object-fit: contain; }
+    .lightbox-naam { font-weight: 700; color: var(--tekst); font-size: 1rem; margin-bottom: 0.25rem; }
+    .lightbox-meta { color: var(--tekst-licht); font-size: 0.88rem; font-weight: 600; }
+
+    /* ── Jaarboek balk ── */
+    .jaarboek-balk { background: linear-gradient(135deg, var(--groen-donker) 0%, var(--groen) 100%); border-radius: var(--radius); padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(40,137,108,0.25); flex-wrap: wrap; }
+    .jaarboek-balk-tekst h3 { color: white; font-size: 1rem; font-weight: 800; margin-bottom: 0.2rem; }
+    .jaarboek-balk-tekst p { color: rgba(255,255,255,0.7); font-size: 0.82rem; font-weight: 600; }
+    .jaarboek-acties { display: flex; align-items: center; gap: 0.75rem; }
+    .jaarboek-acties select { padding: 0.45rem 2rem 0.45rem 0.75rem; border: none; border-radius: var(--radius-s); font-size: 0.9rem; outline: none; background: rgba(255,255,255,0.18) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath stroke='rgba(255,255,255,0.8)' stroke-width='1.5' fill='none' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 0.6rem center; color: white; cursor: pointer; }
+    .jaarboek-acties select option { background: var(--groen-donker); color: white; }
+    .btn-jaarboek { padding: 0.55rem 1.2rem; background: white; color: var(--groen-donker); border: none; border-radius: var(--radius-s); font-size: 0.9rem; font-weight: 800; cursor: pointer; white-space: nowrap; font-family: inherit; transition: var(--overgang); }
+    .btn-jaarboek:hover { background: var(--groen-licht); }
+    .btn-jaarboek:disabled { opacity: 0.6; cursor: not-allowed; }
   </style>
 </head>
-<body>
+<body class="met-sidebar">
 
 <!-- Sidebar -->
 <div class="sidebar">
-  <div class="sidebar-logo">🌱 Groeiboek</div>
+  <div class="sidebar-logo">
+    🌱 Groeiboek
+    <span class="tagline">Herinneringen bewaren</span>
+  </div>
   <nav>
     <a href="dashboard.html" class="actief">📊 Dashboard <span id="premium-badge" class="premium-badge" style="display:none">★ Premium</span></a>
     <a href="dagboek.html">📖 Dagboek</a>
@@ -219,8 +134,9 @@
 
   <!-- Geen kinderen -->
   <div id="geen-kind" class="welkom" style="display:none">
-    <h2>Welkom bij Groeiboek! 🌱</h2>
-    <p>Voeg je eerste kind toe om te beginnen.</p>
+    <div style="font-size:3rem;margin-bottom:1rem">🌱</div>
+    <h2>Welkom bij Groeiboek!</h2>
+    <p>Voeg je eerste kind toe om te beginnen met het bewaren van mooie momenten.</p>
     <button class="btn btn-groen" onclick="openKindModal()">+ Kind toevoegen</button>
   </div>
 
@@ -229,24 +145,43 @@
     <!-- Stat kaarten -->
     <div class="stats">
       <div class="stat-kaart">
-        <div class="getal" id="stat-leeftijd">—</div>
-        <div class="label">🎂 Leeftijd</div>
+        <div class="stat-icon stat-icon-goud">🎂</div>
+        <div class="stat-info">
+          <div class="getal" id="stat-leeftijd">—</div>
+          <div class="label">Leeftijd</div>
+        </div>
       </div>
       <div class="stat-kaart">
-        <div class="getal" id="stat-mijlpalen">—</div>
-        <div class="label">⭐ Mijlpalen bereikt</div>
+        <div class="stat-icon stat-icon-groen">⭐</div>
+        <div class="stat-info">
+          <div class="getal" id="stat-mijlpalen">—</div>
+          <div class="label">Mijlpalen</div>
+        </div>
       </div>
       <div class="stat-kaart">
-        <div class="getal" id="stat-dagboek">—</div>
-        <div class="label">📖 Dagboekstukjes</div>
+        <div class="stat-icon stat-icon-blauw">📖</div>
+        <div class="stat-info">
+          <div class="getal" id="stat-dagboek">—</div>
+          <div class="label">Dagboekstukjes</div>
+        </div>
       </div>
       <div class="stat-kaart">
-        <div class="getal" id="stat-woordjes">—</div>
-        <div class="label">🗣️ Eerste woordjes</div>
+        <div class="stat-icon stat-icon-roze">🗣️</div>
+        <div class="stat-info">
+          <div class="getal" id="stat-woordjes">—</div>
+          <div class="label">Eerste woordjes</div>
+        </div>
+      </div>
+      <div class="stat-kaart">
+        <div class="stat-icon stat-icon-paars">📷</div>
+        <div class="stat-info">
+          <div class="getal" id="stat-fotos">—</div>
+          <div class="label">Foto's</div>
+        </div>
       </div>
     </div>
 
-    <!-- ── Jaarboek ── -->
+    <!-- Jaarboek -->
     <div class="jaarboek-balk">
       <div class="jaarboek-balk-tekst">
         <h3>📄 Jaarboek downloaden</h3>
@@ -254,17 +189,16 @@
       </div>
       <div class="jaarboek-acties">
         <select id="jaarboek-jaar"></select>
-        <button id="btn-jaarboek" class="btn-jaarboek" onclick="jaarboekGenereren()">📄 Jaarboek downloaden</button>
+        <button id="btn-jaarboek" class="btn-jaarboek" onclick="jaarboekGenereren()">📄 Downloaden</button>
       </div>
     </div>
 
-    <!-- ── Groeicurve ── -->
+    <!-- Groeicurve -->
     <div class="sectie" id="groei">
       <div class="sectie-header">
         <div class="sectie-titel">📏 Groeicurve</div>
       </div>
 
-      <!-- Formulier -->
       <div class="groei-form">
         <div class="form-veld">
           <label>Datum</label>
@@ -278,16 +212,14 @@
           <label>Gewicht (kg)</label>
           <input type="number" id="groei-gewicht" placeholder="bijv. 7.2" step="0.1" min="0">
         </div>
-        <button class="btn btn-groen" style="white-space:nowrap" onclick="meetingOpslaan()">+ Meting</button>
+        <button class="btn btn-groen" style="white-space:nowrap;margin-top:auto" onclick="meetingOpslaan()">+ Meting</button>
       </div>
       <div id="groei-melding" class="sectie-melding"></div>
 
-      <!-- Chart -->
       <div class="chart-wrapper">
         <canvas id="groei-chart"></canvas>
       </div>
 
-      <!-- Tabel -->
       <table class="data-tabel">
         <thead>
           <tr>
@@ -297,39 +229,36 @@
           </tr>
         </thead>
         <tbody id="groei-tabel-body">
-          <tr><td colspan="3" style="text-align:center;color:#aaa;padding:1rem">Nog geen metingen</td></tr>
+          <tr><td colspan="3" style="text-align:center;color:var(--tekst-licht);padding:1rem;font-weight:600">Nog geen metingen</td></tr>
         </tbody>
       </table>
     </div>
 
-    <!-- ── Mijlpalen ── -->
+    <!-- Mijlpalen -->
     <div class="sectie" id="mijlpalen">
       <div class="sectie-header">
         <div class="sectie-titel">⭐ Mijlpalen</div>
         <button class="btn btn-groen" onclick="openEigenMijlpaalModal()">+ Eigen mijlpaal</button>
       </div>
 
-      <!-- Checklist -->
       <div class="mijlpalen-grid" id="mijlpalen-checklist">
-        <p style="color:#aaa;font-size:0.9rem">Laden...</p>
+        <p style="color:var(--tekst-licht);font-size:0.9rem;font-weight:600">Laden...</p>
       </div>
 
       <hr class="sectie-divider">
 
-      <!-- Tijdlijn bereikt -->
       <div class="mijl-tl-titel">✅ Bereikt</div>
       <div class="mijl-tijdlijn" id="mijlpalen-tijdlijn">
         <p class="tl-leeg">Nog geen mijlpalen bereikt. Vink er een aan!</p>
       </div>
     </div>
 
-    <!-- ── Woordjes ── -->
+    <!-- Woordjes -->
     <div class="sectie" id="woordjes">
       <div class="sectie-header">
         <div class="sectie-titel">🗣️ Eerste woordjes</div>
       </div>
 
-      <!-- Formulier -->
       <div class="woord-form">
         <div class="form-veld">
           <label>Woordje</label>
@@ -343,28 +272,25 @@
       </div>
       <div id="woord-melding" class="sectie-melding"></div>
 
-      <!-- Zoekbalk -->
       <div class="zoekbalk">
         <input type="text" id="woord-zoek" placeholder="🔍 Zoek een woordje..." oninput="filterWoordjes()">
       </div>
 
-      <!-- Lijst -->
       <div class="woordjes-lijst" id="woordjes-lijst">
         <p class="woordjes-leeg">Nog geen woordjes — voeg het eerste toe!</p>
       </div>
     </div>
 
-    <!-- ── Foto's ── -->
+    <!-- Foto's -->
     <div class="sectie" id="fotos">
       <div class="sectie-header">
         <div class="sectie-titel">📷 Foto's</div>
       </div>
 
-      <!-- Upload -->
       <div class="foto-upload-gebied">
         <label class="foto-upload-label" for="foto-input">📁 Kies een foto</label>
         <input type="file" id="foto-input" accept="image/*" onchange="fotoPreview(this)">
-        <div style="font-size:0.82rem;color:#aaa">JPG, PNG, WebP · max 5 MB</div>
+        <div class="foto-upload-hint">JPG, PNG, WebP · max 20 MB</div>
         <img id="foto-preview" alt="Preview">
       </div>
 
@@ -379,7 +305,6 @@
 
       <hr class="sectie-divider">
 
-      <!-- Galerij -->
       <div class="foto-galerij" id="foto-galerij">
         <p class="galerij-leeg">Nog geen foto's — upload de eerste!</p>
       </div>
@@ -397,12 +322,13 @@
     <label>Geboortedatum</label>
     <input type="date" id="kind-datum">
     <label>Geslacht</label>
-    <select id="kind-geslacht" style="width:100%;padding:0.7rem 1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;outline:none">
+    <select id="kind-geslacht">
       <option value="">Kies...</option>
       <option value="meisje">Meisje</option>
       <option value="jongen">Jongen</option>
       <option value="anders">Anders</option>
     </select>
+    <div id="kind-melding" class="sectie-melding"></div>
     <div class="modal-btns">
       <button class="btn btn-wit" style="flex:1" onclick="sluitKindModal()">Annuleren</button>
       <button class="btn btn-groen" style="flex:1" onclick="kindOpslaan()">Opslaan</button>
@@ -420,9 +346,24 @@
     <input type="date" id="mijl-eigen-datum">
     <label>Icoon (emoji)</label>
     <input type="text" id="mijl-eigen-icoon" placeholder="⭐" maxlength="4">
+    <div id="mijl-eigen-melding" class="sectie-melding"></div>
     <div class="modal-btns">
       <button class="btn btn-wit" style="flex:1" onclick="sluitEigenMijlpaalModal()">Annuleren</button>
       <button class="btn btn-groen" style="flex:1" onclick="eigenMijlpaalOpslaan()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: mijlpaal datum kiezen -->
+<div class="modal-overlay" id="modal-mijlpaal-datum">
+  <div class="modal" style="max-width:380px">
+    <h2>Datum bereikt</h2>
+    <p style="color:var(--tekst-mid);font-size:0.9rem;margin-bottom:1rem;font-weight:600" id="mijl-datum-naam"></p>
+    <label>Op welke datum bereikte je kind deze mijlpaal?</label>
+    <input type="date" id="mijl-datum-input">
+    <div class="modal-btns">
+      <button class="btn btn-wit" style="flex:1" onclick="annuleerMijlpaalDatum()">Annuleren</button>
+      <button class="btn btn-groen" style="flex:1" onclick="bevestigMijlpaalDatum()">Opslaan</button>
     </div>
   </div>
 </div>
@@ -434,9 +375,9 @@
     <p class="upgrade-intro">Onbeperkt herinneringen bewaren voor al je kinderen.</p>
     <ul class="upgrade-voordelen">
       <li>Onbeperkt foto's uploaden</li>
-      <li>Volledige groeicurve & mijlpalen</li>
+      <li>Volledige groeicurve en mijlpalen</li>
       <li>Dagboek, woordjes en meer</li>
-      <li>Altijd beschikbaar, ook offline</li>
+      <li>Jaarboek als PDF downloaden</li>
     </ul>
     <div class="upgrade-plannen">
       <div class="upgrade-plan">
@@ -461,7 +402,7 @@
 
 <!-- Modal: lightbox foto -->
 <div class="modal-overlay" id="modal-lightbox" onclick="sluitLightbox()">
-  <div class="modal" onclick="event.stopPropagation()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:680px;text-align:center">
     <img id="lightbox-img" src="" alt="">
     <div class="lightbox-naam" id="lightbox-label"></div>
     <div class="lightbox-meta" id="lightbox-datum"></div>
@@ -478,19 +419,19 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlydm1rbXh5cXZrd3pra3huemtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MDA5MTksImV4cCI6MjA4OTE3NjkxOX0.Qg1lAqs7H0zFq4needCHCFAtzNCduG1mQLOX3nw1Hvk'
   );
 
-  let actieveKind = null; // volledig kind-object
+  let actieveKind = null;
 
-  // ─── Init ───────────────────────────────────────────────────────────────────
+  // ─── Init ────────────────────────────────────────────────────────────────────
 
   async function init() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return window.location.href = 'inlog.html';
-    // Standaard datums = vandaag
+
     const vandaag = new Date().toISOString().split('T')[0];
     document.getElementById('groei-datum').value = vandaag;
     document.getElementById('woord-datum').value = vandaag;
+    document.getElementById('mijl-datum-input').value = vandaag;
 
-    // Jaar-selector vullen (huidig jaar + 4 jaar terug)
     const jaarSel = document.getElementById('jaarboek-jaar');
     const huidigJaar = new Date().getFullYear();
     for (let j = huidigJaar; j >= huidigJaar - 4; j--) {
@@ -498,10 +439,11 @@
       opt.value = j; opt.textContent = j;
       jaarSel.appendChild(opt);
     }
+
     await Promise.all([laadKinderen(), laadPremiumBadge()]);
   }
 
-  // ─── Kinderen ───────────────────────────────────────────────────────────────
+  // ─── Kinderen ────────────────────────────────────────────────────────────────
 
   async function laadKinderen() {
     const { data: kinderen } = await sb.from('kinderen').select('*').order('created_at');
@@ -546,54 +488,75 @@
     ]);
   }
 
-  // ─── Stats ──────────────────────────────────────────────────────────────────
+  // ─── Stats ───────────────────────────────────────────────────────────────────
 
   async function laadStats(kind) {
     const [
       { count: m },
       { count: w },
       { count: d },
+      { count: f },
     ] = await Promise.all([
       sb.from('mijlpalen').select('*', { count: 'exact', head: true }).eq('kind_id', kind.id),
       sb.from('woordjes').select('*', { count: 'exact', head: true }).eq('kind_id', kind.id),
       sb.from('dagboek').select('*', { count: 'exact', head: true }).eq('kind_id', kind.id),
+      sb.from('fotos').select('*', { count: 'exact', head: true }).eq('kind_id', kind.id),
     ]);
 
-    document.getElementById('stat-mijlpalen').textContent = m || 0;
-    document.getElementById('stat-woordjes').textContent  = w || 0;
-    document.getElementById('stat-dagboek').textContent   = d || 0;
+    document.getElementById('stat-mijlpalen').textContent = m ?? 0;
+    document.getElementById('stat-woordjes').textContent  = w ?? 0;
+    document.getElementById('stat-dagboek').textContent   = d ?? 0;
+    document.getElementById('stat-fotos').textContent     = f ?? 0;
 
-    const geb = new Date(kind.geboortedatum);
-    const nu  = new Date();
-    const maanden = (nu.getFullYear() - geb.getFullYear()) * 12 + (nu.getMonth() - geb.getMonth());
+    const geb      = new Date(kind.geboortedatum);
+    const nu       = new Date();
+    const maanden  = (nu.getFullYear() - geb.getFullYear()) * 12 + (nu.getMonth() - geb.getMonth());
     document.getElementById('stat-leeftijd').textContent =
       maanden < 24 ? maanden + ' mnd' : Math.floor(maanden / 12) + ' jr';
   }
 
-  // ─── Kind modal ─────────────────────────────────────────────────────────────
+  // ─── Kind modal ──────────────────────────────────────────────────────────────
 
-  function openKindModal()  { document.getElementById('modal-kind').classList.add('open'); }
+  function openKindModal() {
+    document.getElementById('kind-naam').value = '';
+    document.getElementById('kind-datum').value = '';
+    document.getElementById('kind-geslacht').value = '';
+    document.getElementById('kind-melding').className = 'sectie-melding';
+    document.getElementById('modal-kind').classList.add('open');
+  }
+
   function sluitKindModal() { document.getElementById('modal-kind').classList.remove('open'); }
 
   async function kindOpslaan() {
     const naam     = document.getElementById('kind-naam').value.trim();
     const datum    = document.getElementById('kind-datum').value;
     const geslacht = document.getElementById('kind-geslacht').value;
-    if (!naam || !datum) return alert('Vul naam en geboortedatum in.');
+
+    const meldingEl = document.getElementById('kind-melding');
+    if (!naam || !datum) {
+      meldingEl.textContent = 'Vul naam en geboortedatum in.';
+      meldingEl.className = 'sectie-melding fout';
+      return;
+    }
+
     const { data: { user } } = await sb.auth.getUser();
     const { error } = await sb.from('kinderen').insert({ naam, geboortedatum: datum, geslacht, user_id: user.id });
-    if (error) return alert('Fout: ' + error.message);
+    if (error) {
+      meldingEl.textContent = 'Fout: ' + error.message;
+      meldingEl.className = 'sectie-melding fout';
+      return;
+    }
+
     sluitKindModal();
     await laadKinderen();
   }
 
-  // ─── Auth ────────────────────────────────────────────────────────────────────
+  // ─── Auth ─────────────────────────────────────────────────────────────────────
 
   async function uitloggen() {
     await sb.auth.signOut();
     window.location.href = 'inlog.html';
   }
-
 </script>
 <script src="js/groeicurve.js"></script>
 <script src="js/mijlpalen.js"></script>

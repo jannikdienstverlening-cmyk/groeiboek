@@ -27,7 +27,7 @@ async function meetingOpslaan() {
   const { error } = await sb.from('metingen').insert(payload);
   if (error) return groeiFeedback('Fout: ' + error.message, 'fout');
 
-  document.getElementById('groei-datum').value   = '';
+  document.getElementById('groei-datum').value   = new Date().toISOString().split('T')[0];
   document.getElementById('groei-lengte').value  = '';
   document.getElementById('groei-gewicht').value = '';
   groeiFeedback('✅ Meting opgeslagen!', 'ok');

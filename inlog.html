@@ -5,86 +5,193 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Groeiboek — Inloggen</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/style.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f4faf7; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .kaart { background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); width: 100%; max-width: 400px; }
-    h1 { color: #1e6e55; font-size: 1.8rem; margin-bottom: 0.3rem; }
-    p.sub { color: #888; font-size: 0.9rem; margin-bottom: 1.8rem; }
-    label { display: block; font-size: 0.85rem; color: #444; margin-bottom: 0.3rem; margin-top: 1rem; }
-    input { width: 100%; padding: 0.7rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; }
-    input:focus { border-color: #1e6e55; }
-    .btn { width: 100%; padding: 0.8rem; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; margin-top: 1.2rem; }
-    .btn-groen { background: #1e6e55; color: white; }
-    .btn-groen:hover { background: #165c45; }
-    .btn-wit { background: white; color: #1e6e55; border: 1px solid #1e6e55; }
-    .btn-wit:hover { background: #f4faf7; }
-    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
-    .tab { flex: 1; padding: 0.6rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; background: #eee; color: #666; }
-    .tab.actief { background: #1e6e55; color: white; }
-    .melding { margin-top: 1rem; padding: 0.8rem; border-radius: 8px; font-size: 0.9rem; display: none; }
-    .melding.fout { background: #fdecea; color: #c0392b; display: block; }
-    .melding.ok { background: #e8f5f0; color: #1e6e55; display: block; }
-    .divider { text-align: center; color: #aaa; font-size: 0.8rem; margin: 1rem 0; }
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
+
+    .kaart {
+      background: var(--surface);
+      padding: 2.5rem;
+      border-radius: var(--radius-l);
+      box-shadow: 0 8px 40px rgba(20, 80, 55, 0.12);
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid var(--rand);
+    }
+
+    .logo {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      color: var(--tekst);
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      margin-bottom: 0.25rem;
+    }
+
+    p.sub {
+      color: var(--tekst-licht);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      font-weight: 500;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 1.75rem;
+      background: var(--bg);
+      padding: 0.25rem;
+      border-radius: var(--radius-s);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 0.55rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-family: inherit;
+      font-weight: 700;
+      background: transparent;
+      color: var(--tekst-licht);
+      transition: var(--overgang);
+    }
+
+    .tab.actief {
+      background: var(--surface);
+      color: var(--tekst);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    }
+
+    label { margin-top: 0.9rem; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.8rem;
+      border: none;
+      border-radius: var(--radius-s);
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 1.25rem;
+      transition: var(--overgang);
+      background: linear-gradient(135deg, var(--groen) 0%, var(--groen-donker) 100%);
+      color: white;
+      box-shadow: 0 2px 10px rgba(40, 137, 108, 0.3);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 18px rgba(40, 137, 108, 0.38);
+    }
+
+    .btn-link {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1.5px solid var(--groen-mid);
+      border-radius: var(--radius-s);
+      font-size: 0.95rem;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 0.75rem;
+      transition: var(--overgang);
+      background: var(--surface);
+      color: var(--groen);
+    }
+
+    .btn-link:hover {
+      background: var(--groen-licht);
+      border-color: var(--groen);
+    }
+
+    .divider {
+      text-align: center;
+      color: var(--tekst-licht);
+      font-size: 0.8rem;
+      margin: 1rem 0;
+      font-weight: 600;
+    }
+
+    #melding { margin-top: 1rem; }
   </style>
 </head>
 <body>
 <div class="kaart">
-  <h1>🌱 Groeiboek</h1>
+  <div class="logo">🌱</div>
+  <h1>Groeiboek</h1>
   <p class="sub">Bewaar de mooiste momenten van je kind</p>
+
   <div class="tabs">
     <button class="tab actief" onclick="toonTab('inloggen')">Inloggen</button>
     <button class="tab" onclick="toonTab('registreren')">Registreren</button>
   </div>
+
   <div id="tab-inloggen">
     <label>E-mailadres</label>
     <input type="email" id="login-email" placeholder="jouw@email.nl">
     <label>Wachtwoord</label>
     <input type="password" id="login-wachtwoord" placeholder="••••••••">
-    <button class="btn btn-groen" onclick="inloggen()">Inloggen</button>
+    <button class="btn-submit" onclick="inloggen()">Inloggen</button>
     <div class="divider">of</div>
-    <button class="btn btn-wit" onclick="magicLink()">✉️ Stuur inloglink per e-mail</button>
+    <button class="btn-link" onclick="magicLink()">✉️ Stuur inloglink per e-mail</button>
   </div>
+
   <div id="tab-registreren" style="display:none">
     <label>E-mailadres</label>
     <input type="email" id="reg-email" placeholder="jouw@email.nl">
     <label>Wachtwoord</label>
     <input type="password" id="reg-wachtwoord" placeholder="Minimaal 6 tekens">
-    <button class="btn btn-groen" onclick="registreren()">Account aanmaken</button>
+    <button class="btn-submit" onclick="registreren()">Account aanmaken</button>
   </div>
+
   <div id="melding" class="melding"></div>
 </div>
+
 <script>
   const { createClient } = supabase;
   const sb = createClient(
     'https://irvmkmxyqvkwzkkxnzkj.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlydm1rbXh5cXZrd3pra3huemtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MDA5MTksImV4cCI6MjA4OTE3NjkxOX0.Qg1lAqs7H0zFq4needCHCFAtzNCduG1mQLOX3nw1Hvk'
   );
+
   function toonTab(tab) {
-    document.getElementById('tab-inloggen').style.display = tab === 'inloggen' ? 'block' : 'none';
+    document.getElementById('tab-inloggen').style.display   = tab === 'inloggen'    ? 'block' : 'none';
     document.getElementById('tab-registreren').style.display = tab === 'registreren' ? 'block' : 'none';
-    document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('actief', (tab === 'inloggen') === (i === 0)));
+    document.querySelectorAll('.tab').forEach((t, i) =>
+      t.classList.toggle('actief', (tab === 'inloggen') === (i === 0))
+    );
     melding('', '');
   }
+
   function melding(tekst, type) {
     const el = document.getElementById('melding');
     el.textContent = tekst;
     el.className = 'melding' + (type ? ' ' + type : '');
   }
+
   async function inloggen() {
-    const email = document.getElementById('login-email').value;
+    const email     = document.getElementById('login-email').value;
     const wachtwoord = document.getElementById('login-wachtwoord').value;
     const { error } = await sb.auth.signInWithPassword({ email, password: wachtwoord });
     if (error) return melding('Inloggen mislukt: ' + error.message, 'fout');
     window.location.href = 'dashboard.html';
   }
+
   async function registreren() {
-    const email = document.getElementById('reg-email').value;
+    const email     = document.getElementById('reg-email').value;
     const wachtwoord = document.getElementById('reg-wachtwoord').value;
     const { error } = await sb.auth.signUp({ email, password: wachtwoord });
     if (error) return melding('Registreren mislukt: ' + error.message, 'fout');
     melding('✅ Gelukt! Controleer je e-mail om je account te bevestigen.', 'ok');
   }
+
   async function magicLink() {
     const email = document.getElementById('login-email').value;
     if (!email) return melding('Vul eerst je e-mailadres in.', 'fout');

@@ -3,7 +3,10 @@
  * Verwacht: sb (Supabase client), window.mijlpalenKindId
  */
 
-let alleMijlpalen = []; // bereikt door dit kind
+let alleMijlpalen = [];
+
+// Tijdelijk opgeslagen state voor datum-modal
+let _pendingMijlpaal = null;
 
 // ─── Laden ────────────────────────────────────────────────────────────────────
 
@@ -26,12 +29,12 @@ function renderChecklist(templates, bereikt) {
   const container = document.getElementById('mijlpalen-checklist');
   if (!container) return;
 
-  const bereiktIds = new Set(bereikt.map(b => b.template_id).filter(Boolean));
+  const bereiktIds   = new Set(bereikt.map(b => b.template_id).filter(Boolean));
   const bereiktDatums = {};
   bereikt.forEach(b => { if (b.template_id) bereiktDatums[b.template_id] = b.datum; });
 
   if (templates.length === 0) {
-    container.innerHTML = '<p style="color:#aaa;font-size:0.9rem">Geen templates gevonden.</p>';
+    container.innerHTML = '<p style="color:var(--tekst-licht);font-size:0.9rem;font-weight:600">Geen templates gevonden.</p>';
     return;
   }
 
@@ -53,43 +56,76 @@ function renderChecklist(templates, bereikt) {
 }
 
 async function toggleMijlpaal(templateId, naam, icoon, checkbox) {
-  const item = document.getElementById(`mijl-item-${templateId}`);
-
   if (checkbox.checked) {
-    // Datum picker tonen inline
-    const vandaag = new Date().toISOString().split('T')[0];
-    const datum = prompt(`Op welke datum bereikte je kind "${naam}"?\n(formaat: JJJJ-MM-DD)`, vandaag);
-    if (!datum) { checkbox.checked = false; return; }
-
-    const { data: { user } } = await sb.auth.getUser();
-    const { error } = await sb.from('mijlpalen').insert({
-      kind_id: window.mijlpalenKindId,
-      user_id: user.id,
-      template_id: templateId,
-      naam,
-      icoon,
-      datum,
-    });
-    if (error) { alert('Fout: ' + error.message); checkbox.checked = false; return; }
+    // Sla pending op en toon datum-modal
+    _pendingMijlpaal = { templateId, naam, icoon, checkbox };
+    document.getElementById('mijl-datum-naam').textContent = naam;
+    document.getElementById('mijl-datum-input').value = new Date().toISOString().split('T')[0];
+    document.getElementById('modal-mijlpaal-datum').classList.add('open');
   } else {
-    // Verwijder uit bereikt
     const { error } = await sb.from('mijlpalen')
       .delete()
       .eq('kind_id', window.mijlpalenKindId)
       .eq('template_id', templateId);
-    if (error) { alert('Fout: ' + error.message); checkbox.checked = true; return; }
+
+    if (error) {
+      mijlMelding('Fout bij verwijderen: ' + error.message, 'fout');
+      checkbox.checked = true;
+      return;
+    }
+
+    await laadMijlpalen(window.mijlpalenKindId);
+  }
+}
+
+async function bevestigMijlpaalDatum() {
+  if (!_pendingMijlpaal) return;
+
+  const datum = document.getElementById('mijl-datum-input').value;
+  if (!datum) {
+    document.getElementById('mijl-datum-input').focus();
+    return;
   }
 
-  await laadMijlpalen(window.mijlpalenKindId);
+  const { templateId, naam, icoon, checkbox } = _pendingMijlpaal;
+  document.getElementById('modal-mijlpaal-datum').classList.remove('open');
+
+  const { data: { user } } = await sb.auth.getUser();
+  const { error } = await sb.from('mijlpalen').insert({
+    kind_id:     window.mijlpalenKindId,
+    user_id:     user.id,
+    template_id: templateId,
+    naam,
+    icoon,
+    datum,
+  });
+
+  if (error) {
+    mijlMelding('Fout bij opslaan: ' + error.message, 'fout');
+    checkbox.checked = false;
+  } else {
+    await laadMijlpalen(window.mijlpalenKindId);
+  }
+
+  _pendingMijlpaal = null;
+}
+
+function annuleerMijlpaalDatum() {
+  document.getElementById('modal-mijlpaal-datum').classList.remove('open');
+  if (_pendingMijlpaal) {
+    _pendingMijlpaal.checkbox.checked = false;
+    _pendingMijlpaal = null;
+  }
 }
 
 // ─── Eigen mijlpaal modal ─────────────────────────────────────────────────────
 
 function openEigenMijlpaalModal() {
   document.getElementById('modal-mijlpaal').classList.add('open');
-  document.getElementById('mijl-eigen-naam').value = '';
+  document.getElementById('mijl-eigen-naam').value  = '';
   document.getElementById('mijl-eigen-datum').value = new Date().toISOString().split('T')[0];
   document.getElementById('mijl-eigen-icoon').value = '⭐';
+  document.getElementById('mijl-eigen-melding').className = 'sectie-melding';
 }
 
 function sluitEigenMijlpaalModal() {
@@ -101,19 +137,34 @@ async function eigenMijlpaalOpslaan() {
   const datum = document.getElementById('mijl-eigen-datum').value;
   const icoon = document.getElementById('mijl-eigen-icoon').value.trim() || '⭐';
 
-  if (!naam)  return alert('Vul een naam in.');
-  if (!datum) return alert('Kies een datum.');
+  const meldingEl = document.getElementById('mijl-eigen-melding');
+
+  if (!naam) {
+    meldingEl.textContent = 'Vul een naam in.';
+    meldingEl.className = 'sectie-melding fout';
+    return;
+  }
+  if (!datum) {
+    meldingEl.textContent = 'Kies een datum.';
+    meldingEl.className = 'sectie-melding fout';
+    return;
+  }
 
   const { data: { user } } = await sb.auth.getUser();
   const { error } = await sb.from('mijlpalen').insert({
-    kind_id: window.mijlpalenKindId,
-    user_id: user.id,
+    kind_id:     window.mijlpalenKindId,
+    user_id:     user.id,
     naam,
     datum,
     icoon,
     template_id: null,
   });
-  if (error) return alert('Fout: ' + error.message);
+
+  if (error) {
+    meldingEl.textContent = 'Fout: ' + error.message;
+    meldingEl.className = 'sectie-melding fout';
+    return;
+  }
 
   sluitEigenMijlpaalModal();
   await laadMijlpalen(window.mijlpalenKindId);
@@ -144,6 +195,16 @@ function renderTijdlijn(bereikt) {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function mijlMelding(tekst, type) {
+  // Toon melding in de mijlpalen sectie als die bestaat
+  const el = document.getElementById('groei-melding') || document.getElementById('melding');
+  if (!el) return;
+  el.textContent = tekst;
+  el.className = 'sectie-melding ' + type;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
 
 function formatDatumKort(d) {
   if (!d) return '—';
