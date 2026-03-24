@@ -6,9 +6,9 @@
 
 // ─── Constanten ───────────────────────────────────────────────────────────────
 
-const GROEN       = [30, 110, 85];
-const GROEN_LICHT = [232, 245, 240];
-const GROEN_MID   = [178, 223, 200];
+const GROEN       = [135, 74, 97];   /* dusty rose */
+const GROEN_LICHT = [250, 236, 242]; /* blush licht */
+const GROEN_MID   = [221, 180, 197]; /* blush mid */
 const TEKST       = [51, 51, 51];
 const GRIJS       = [120, 120, 120];
 const WIT         = [255, 255, 255];

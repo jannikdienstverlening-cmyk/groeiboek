@@ -6,26 +6,26 @@
 
 /* ── Design tokens ─────────────────────────────────────────── */
 :root {
-  --groen:         #28896C;
-  --groen-donker:  #1A5C48;
-  --groen-diep:    #103829;
-  --groen-licht:   #EBF7F2;
-  --groen-mid:     #A8D9C4;
-  --accent:        #F07A5A;
-  --accent-licht:  #FEF2EE;
-  --goud:          #F5C542;
-  --goud-licht:    #FEF9E6;
-  --bg:            #F2F5F3;
+  --groen:         #B06280;  /* dusty rose */
+  --groen-donker:  #874A61;
+  --groen-diep:    #562840;
+  --groen-licht:   #FAECF2;
+  --groen-mid:     #DDB4C5;
+  --accent:        #F0986A;  /* warm perzik */
+  --accent-licht:  #FEF2EB;
+  --goud:          #F4C14A;
+  --goud-licht:    #FDF6E0;
+  --bg:            #FEF7FA;  /* warm crème-roze */
   --surface:       #FFFFFF;
-  --tekst:         #1C2B24;
-  --tekst-mid:     #4A6357;
-  --tekst-licht:   #8CABA0;
-  --rand:          #DDE9E3;
+  --tekst:         #2A141E;
+  --tekst-mid:     #6B3F52;
+  --tekst-licht:   #B08898;
+  --rand:          #EDD8E2;
   --radius-s:      8px;
   --radius:        14px;
   --radius-l:      20px;
-  --schaduw:       0 2px 16px rgba(20, 80, 55, 0.07);
-  --schaduw-hover: 0 8px 28px rgba(20, 80, 55, 0.13);
+  --schaduw:       0 2px 16px rgba(80, 30, 55, 0.07);
+  --schaduw-hover: 0 8px 28px rgba(80, 30, 55, 0.13);
   --overgang:      all 0.2s ease;
 }
 
@@ -49,7 +49,7 @@ body.met-sidebar {
 /* ── Sidebar ───────────────────────────────────────────────── */
 .sidebar {
   width: 248px;
-  background: linear-gradient(170deg, var(--groen-diep) 0%, var(--groen-donker) 50%, var(--groen) 100%);
+  background: linear-gradient(170deg, #3D1630 0%, #6B3050 45%, #A05570 100%);
   color: white;
   display: flex;
   flex-direction: column;
