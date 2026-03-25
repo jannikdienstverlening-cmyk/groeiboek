@@ -82,7 +82,7 @@
     .lightbox-meta { color: var(--tekst-licht); font-size: 0.88rem; font-weight: 600; }
 
     /* ── Jaarboek balk ── */
-    .jaarboek-balk { background: linear-gradient(135deg, var(--groen-donker) 0%, var(--groen) 100%); border-radius: var(--radius); padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(40,137,108,0.25); flex-wrap: wrap; }
+    .jaarboek-balk { background: linear-gradient(135deg, var(--groen-donker) 0%, var(--groen) 100%); border-radius: var(--radius); padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 2rem; margin-bottom: 0; box-shadow: 0 4px 20px rgba(176,98,128,0.25); flex-wrap: wrap; }
     .jaarboek-balk-tekst h3 { color: white; font-size: 1rem; font-weight: 800; margin-bottom: 0.2rem; }
     .jaarboek-balk-tekst p { color: rgba(255,255,255,0.7); font-size: 0.82rem; font-weight: 600; }
     .jaarboek-acties { display: flex; align-items: center; gap: 0.75rem; }
@@ -91,6 +91,28 @@
     .btn-jaarboek { padding: 0.55rem 1.2rem; background: white; color: var(--groen-donker); border: none; border-radius: var(--radius-s); font-size: 0.9rem; font-weight: 800; cursor: pointer; white-space: nowrap; font-family: inherit; transition: var(--overgang); }
     .btn-jaarboek:hover { background: var(--groen-licht); }
     .btn-jaarboek:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── Onboarding ── */
+    .onboarding-kaart { background: var(--surface); border-radius: var(--radius-l); padding: 2.5rem 2rem; box-shadow: var(--schaduw); border: 1px solid var(--rand); text-align: center; max-width: 500px; margin: 0 auto; }
+    .onboarding-kaart .ob-emoji { font-size: 3rem; margin-bottom: 1rem; }
+    .onboarding-kaart h2 { color: var(--tekst); font-size: 1.35rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.3px; }
+    .onboarding-kaart > p { color: var(--tekst-licht); font-size: 0.92rem; line-height: 1.6; max-width: 360px; margin: 0 auto 1.75rem; font-weight: 600; }
+    .ob-stappen { display: flex; align-items: flex-start; justify-content: center; gap: 0; margin-bottom: 2rem; }
+    .ob-stap { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; flex: 1; max-width: 120px; }
+    .ob-cirkel { width: 38px; height: 38px; border-radius: 50%; background: var(--bg); border: 2px solid var(--rand); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 800; color: var(--tekst-licht); transition: var(--overgang); }
+    .ob-cirkel.actief { background: var(--groen); border-color: var(--groen); color: white; box-shadow: 0 2px 10px rgba(176,98,128,0.35); }
+    .ob-cirkel.klaar { background: var(--groen-licht); border-color: var(--groen); color: var(--groen); }
+    .ob-stap-label { font-size: 0.72rem; color: var(--tekst-licht); font-weight: 700; text-align: center; line-height: 1.3; }
+    .ob-stap.actief .ob-stap-label { color: var(--groen); }
+    .ob-lijn { height: 2px; background: var(--rand); flex: 0 0 32px; margin-top: 18px; }
+
+    /* ── Nav premium badge ── */
+    .nav-pro { font-size: 0.6rem; font-weight: 800; background: rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); border-radius: 8px; padding: 0.1rem 0.4rem; margin-left: 0.3rem; letter-spacing: 0.3px; vertical-align: middle; display: none; }
+    .nav-gratis .nav-pro { display: inline; }
+
+    /* ── Eerste stap banner ── */
+    .eerste-stap-tip { background: var(--groen-licht); border: 1px solid var(--groen-mid); border-radius: var(--radius); padding: 0.9rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; font-size: 0.88rem; color: var(--groen-donker); font-weight: 700; }
+    .eerste-stap-tip span { flex: 1; }
   </style>
 </head>
 <body class="met-sidebar">
@@ -111,14 +133,14 @@
       <span class="tagline">Herinneringen bewaren</span>
     </div>
   </div>
-  <nav>
+  <nav id="hoofd-nav">
     <a href="dashboard.html" class="actief">📊 Dashboard <span id="premium-badge" class="premium-badge" style="display:none">★ Premium</span></a>
-    <a href="dagboek.html">📖 Dagboek</a>
+    <a href="dagboek.html">📖 Dagboek <span class="nav-pro">PRO</span></a>
     <a href="zwangerschap.html">🤰 Zwangerschap</a>
-    <a href="dashboard.html#groei">📏 Groeicurve</a>
+    <a href="dashboard.html#groei">📏 Groeicurve <span class="nav-pro">PRO</span></a>
     <a href="dashboard.html#mijlpalen">⭐ Mijlpalen</a>
-    <a href="dashboard.html#woordjes">🗣️ Woordjes</a>
-    <a href="dashboard.html#fotos">📷 Foto's</a>
+    <a href="dashboard.html#woordjes">🗣️ Woordjes <span class="nav-pro">PRO</span></a>
+    <a href="dashboard.html#fotos">📷 Foto's <span class="nav-pro">PRO</span></a>
   </nav>
   <div id="sidebar-upgrade" class="sidebar-upgrade" style="display:none">
     <button class="btn-upgrade" onclick="showUpgradeModal()">⭐ Upgrade naar Premium</button>
@@ -133,7 +155,7 @@
   <div class="topbar">
     <h1>Dashboard</h1>
     <div class="kind-selector">
-      <select id="kind-select" onchange="kindWisselen()"><option>Laden...</option></select>
+      <select id="kind-select" onchange="kindWisselen()"></select>
       <button class="btn btn-groen" onclick="openKindModal()">+ Kind</button>
     </div>
   </div>
@@ -143,12 +165,32 @@
     🎉 Welkom bij Premium! Je abonnement is actief. Bedankt voor je steun!
   </div>
 
-  <!-- Geen kinderen -->
-  <div id="geen-kind" class="welkom" style="display:none">
-    <div style="font-size:3rem;margin-bottom:1rem">🌱</div>
-    <h2>Welkom bij Groeiboek!</h2>
-    <p>Voeg je eerste kind toe om te beginnen met het bewaren van mooie momenten.</p>
-    <button class="btn btn-groen" onclick="openKindModal()">+ Kind toevoegen</button>
+  <!-- Onboarding: geen kinderen -->
+  <div id="geen-kind" style="display:none; padding: 1rem 0">
+    <div class="onboarding-kaart">
+      <div class="ob-emoji">👶</div>
+      <h2>Welkom bij Groeiboek!</h2>
+      <p>Bewaar alle mooie momenten van je kindje — van de eerste glimlach tot het eerste stapje. Begin in 3 stappen.</p>
+
+      <div class="ob-stappen">
+        <div class="ob-stap actief" id="ob-stap-1">
+          <div class="ob-cirkel actief">1</div>
+          <div class="ob-stap-label">Kind<br>toevoegen</div>
+        </div>
+        <div class="ob-lijn"></div>
+        <div class="ob-stap" id="ob-stap-2">
+          <div class="ob-cirkel">2</div>
+          <div class="ob-stap-label">Eerste<br>mijlpaal</div>
+        </div>
+        <div class="ob-lijn"></div>
+        <div class="ob-stap" id="ob-stap-3">
+          <div class="ob-cirkel">3</div>
+          <div class="ob-stap-label">Dagboek<br>notitie</div>
+        </div>
+      </div>
+
+      <button class="btn btn-groen" style="padding:0.75rem 2rem;font-size:1rem" onclick="openKindModal()">👶 Voeg je kind toe</button>
+    </div>
   </div>
 
   <div id="dashboard-inhoud" style="display:none">
@@ -202,16 +244,10 @@
       </div>
     </div>
 
-    <!-- Jaarboek -->
-    <div class="jaarboek-balk">
-      <div class="jaarboek-balk-tekst">
-        <h3>📄 Jaarboek downloaden</h3>
-        <p>Alle herinneringen van een jaar als mooi PDF-boek</p>
-      </div>
-      <div class="jaarboek-acties">
-        <select id="jaarboek-jaar"></select>
-        <button id="btn-jaarboek" class="btn-jaarboek" onclick="jaarboekGenereren()">📄 Downloaden</button>
-      </div>
+    <!-- Eerste stap tip (getoond als data leeg is) -->
+    <div id="eerste-stap-tip" class="eerste-stap-tip" style="display:none">
+      <span>🎉 Je kind is toegevoegd! Zet nu je eerste mijlpaal of schrijf een dagboeknotitie.</span>
+      <a href="dagboek.html" class="btn btn-groen" style="white-space:nowrap;padding:0.4rem 0.9rem;font-size:0.82rem">Dagboek →</a>
     </div>
 
     <!-- Groeicurve -->
@@ -262,9 +298,7 @@
         <button class="btn btn-groen" onclick="openEigenMijlpaalModal()">+ Eigen mijlpaal</button>
       </div>
 
-      <div class="mijlpalen-grid" id="mijlpalen-checklist">
-        <p style="color:var(--tekst-licht);font-size:0.9rem;font-weight:600">Laden...</p>
-      </div>
+      <div class="mijlpalen-grid" id="mijlpalen-checklist"></div>
 
       <hr class="sectie-divider">
 
@@ -328,6 +362,18 @@
 
       <div class="foto-galerij" id="foto-galerij">
         <p class="galerij-leeg">Nog geen foto's — upload de eerste!</p>
+      </div>
+    </div>
+
+    <!-- Jaarboek -->
+    <div class="jaarboek-balk">
+      <div class="jaarboek-balk-tekst">
+        <h3>📄 Jaarboek downloaden</h3>
+        <p>Alle herinneringen van een jaar als mooi PDF-boek</p>
+      </div>
+      <div class="jaarboek-acties">
+        <select id="jaarboek-jaar"></select>
+        <button id="btn-jaarboek" class="btn-jaarboek" onclick="jaarboekGenereren()">📄 Downloaden</button>
       </div>
     </div>
 
@@ -474,7 +520,6 @@
     if (!kinderen || kinderen.length === 0) {
       document.getElementById('geen-kind').style.display = 'block';
       document.getElementById('dashboard-inhoud').style.display = 'none';
-      sel.innerHTML = '<option>Geen kinderen</option>';
       return;
     }
 
@@ -484,7 +529,10 @@
     kinderen.forEach(k => {
       const opt = document.createElement('option');
       opt.value = k.id;
-      opt.textContent = k.naam;
+      const geb = new Date(k.geboortedatum);
+      const mnd = (new Date().getFullYear() - geb.getFullYear()) * 12 + (new Date().getMonth() - geb.getMonth());
+      const leeftijd = mnd < 24 ? mnd + ' mnd' : Math.floor(mnd / 12) + ' jr';
+      opt.textContent = k.naam + ' (' + leeftijd + ')';
       sel.appendChild(opt);
     });
 
@@ -528,6 +576,11 @@
     document.getElementById('stat-woordjes').textContent  = w ?? 0;
     document.getElementById('stat-dagboek').textContent   = d ?? 0;
     document.getElementById('stat-fotos').textContent     = f ?? 0;
+
+    // Toon eerste-stap-tip als alles nog leeg is
+    const totaal = (m ?? 0) + (w ?? 0) + (d ?? 0) + (f ?? 0);
+    const tip = document.getElementById('eerste-stap-tip');
+    if (tip) tip.style.display = totaal === 0 ? 'flex' : 'none';
 
     const geb      = new Date(kind.geboortedatum);
     const nu       = new Date();

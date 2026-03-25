@@ -34,19 +34,26 @@ async function laadPremiumBadge() {
   const premium = await isPremium();
   const badge   = document.getElementById('premium-badge');
   const upgrade = document.getElementById('sidebar-upgrade');
+  const nav     = document.getElementById('hoofd-nav');
 
   if (premium) {
     if (badge)   badge.style.display   = 'inline-flex';
     if (upgrade) upgrade.style.display = 'none';
+    if (nav)     nav.classList.remove('nav-gratis');
   } else {
     if (badge)   badge.style.display   = 'none';
     if (upgrade) upgrade.style.display = 'block';
+    if (nav)     nav.classList.add('nav-gratis');
   }
 
-  // Toon banner als betaald=true in URL
+  // Toon banner als betaald=true in URL (eenmalig via localStorage)
   if (new URLSearchParams(window.location.search).get('betaald') === 'true') {
-    premiumStatus = null; // reset cache na betaling
-    toonBetaaldBanner();
+    premiumStatus = null;
+    const al = localStorage.getItem('groeiboek_betaald_gezien');
+    if (!al) {
+      toonBetaaldBanner();
+      localStorage.setItem('groeiboek_betaald_gezien', '1');
+    }
     window.history.replaceState({}, '', 'dashboard.html');
   }
 }
