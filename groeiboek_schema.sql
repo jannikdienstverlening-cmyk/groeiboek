@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS mijlpalen (
 );
 ALTER TABLE mijlpalen ADD COLUMN IF NOT EXISTS user_id     uuid REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE mijlpalen ADD COLUMN IF NOT EXISTS kind_id     uuid REFERENCES kinderen(id) ON DELETE CASCADE;
-ALTER TABLE mijlpalen ADD COLUMN IF NOT EXISTS template_id uuid REFERENCES mijlpalen_templates(id);
+ALTER TABLE mijlpalen ADD COLUMN IF NOT EXISTS template_id integer REFERENCES mijlpalen_templates(id);
 ALTER TABLE mijlpalen ADD COLUMN IF NOT EXISTS naam        text;
 ALTER TABLE mijlpalen ADD COLUMN IF NOT EXISTS datum       date;
 ALTER TABLE mijlpalen ADD COLUMN IF NOT EXISTS icoon       text;
