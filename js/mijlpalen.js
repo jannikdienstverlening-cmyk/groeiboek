@@ -14,7 +14,7 @@ async function laadMijlpalen(kindId) {
   window.mijlpalenKindId = kindId;
 
   const [{ data: templates }, { data: bereikt }] = await Promise.all([
-    sb.from('mijlpalen_templates').select('*').order('volgorde', { ascending: true }),
+    sb.from('mijlpalen_templates').select('*').order('volg', { ascending: true }),
     sb.from('mijlpalen').select('*').eq('kind_id', kindId).order('datum', { ascending: true }),
   ]);
 
@@ -41,13 +41,15 @@ function renderChecklist(templates, bereikt) {
   container.innerHTML = templates.map(t => {
     const gedaan = bereiktIds.has(t.id);
     const datum  = bereiktDatums[t.id] ? formatDatumKort(bereiktDatums[t.id]) : '';
+    const naam   = t.label || t.naam || '';
+    const icoon  = t.emoji || t.icoon || '⭐';
     return `
       <div class="mijl-check-item ${gedaan ? 'gedaan' : ''}" id="mijl-item-${t.id}">
         <label class="mijl-check-label">
           <input type="checkbox" ${gedaan ? 'checked' : ''}
-            onchange="toggleMijlpaal('${t.id}', '${escHtml(t.naam)}', '${escHtml(t.icoon || '⭐')}', this)">
-          <span class="mijl-icoon">${t.icoon || '⭐'}</span>
-          <span class="mijl-naam">${escHtml(t.naam)}</span>
+            onchange="toggleMijlpaal('${t.id}', '${escHtml(naam)}', '${escHtml(icoon)}', this)">
+          <span class="mijl-icoon">${icoon}</span>
+          <span class="mijl-naam">${escHtml(naam)}</span>
         </label>
         ${gedaan ? `<span class="mijl-datum-badge">${datum}</span>` : ''}
       </div>
@@ -87,7 +89,7 @@ async function bevestigMijlpaalDatum() {
     return;
   }
 
-  const { templateId, naam, icoon, checkbox } = _pendingMijlpaal;
+  const { templateId, naam, checkbox } = _pendingMijlpaal;
   document.getElementById('modal-mijlpaal-datum').classList.remove('open');
 
   const { data: { user } } = await sb.auth.getUser();
