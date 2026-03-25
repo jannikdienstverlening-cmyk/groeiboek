@@ -155,7 +155,6 @@ async function eigenMijlpaalOpslaan() {
     user_id:     user.id,
     naam,
     datum,
-    icoon,
     template_id: null,
   });
 
