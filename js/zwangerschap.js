@@ -260,7 +260,7 @@ async function zwFotoUploaden() {
   if (bestand.size > 20 * 1024 * 1024) return zwFeedback('foto', 'Bestand te groot (max 20 MB).', 'fout');
 
   const ext = bestand.name.split('.').pop();
-  const pad = `${window.zwUserId}/${window.zwKindId}/zwangerschap/${Date.now()}.${ext}`;
+  const pad = `${window.zwUserId}/${window.zwKindId}/${Date.now()}_zw.${ext}`;
 
   const { error: uploadErr } = await sb.storage.from('fotos').upload(pad, bestand, {
     contentType: bestand.type, upsert: false,
