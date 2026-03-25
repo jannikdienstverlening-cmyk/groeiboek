@@ -96,7 +96,6 @@ async function bevestigMijlpaalDatum() {
     user_id:     user.id,
     template_id: templateId,
     naam,
-    icoon,
     datum,
   });
 
